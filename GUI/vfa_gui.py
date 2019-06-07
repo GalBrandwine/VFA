@@ -5,7 +5,7 @@ from tkinter import ttk
 
 
 class VFA_gui:
-    """Simple gui for operating on VFA. """
+    """ Simple gui for operating on VFA. """
 
     def __init__(self, master):
         self.master = master
@@ -19,26 +19,53 @@ class VFA_gui:
 
     # Gui button's should activate inner class instance functions!
     def donothing(self):
+        """ Stupid thing from tutorial. """
         filewin = Toplevel(root)
         button = Button(filewin, text="Do nothing button")
         button.pack()
 
     def greet(self):
+        """ Stupid thing from tutorial. """
         print("Greetings!")
 
     def run(self):
+        """
+        Function for calling RUN's run operation
+        todo: implement Run module and its methods.
+        :return:
+        """
         print("Executing a Run of initiated Automaton on a given word")
 
     def unwind(self):
+        """
+        Function for calling VFA's unwind operation
+        todo: call self.VFA.unwind. add the returned VFA into the VFA container.
+        :return: unwinded new VFA
+        """
         print("Unwinded have been performed")
 
     def negate(self):
+        """
+        Function for calling VFA's negate operation
+        todo: call self.VFA.negate.
+        :return:
+        """
         print("Negate have been performed")
 
     def complete(self):
+        """
+        Function for calling VFA's complete operation
+        todo: call self.VFA.complete.
+        :return:
+        """
         print("complete have been performed")
 
     def intersect(self):
+        """
+        Function for activating VFA's intersect operation
+        todo: call VFA.generate(root.filename), add the result into a second VFA containar
+        :return:
+        """
         self.master.filename = filedialog.askopenfilename(initialdir="/", title="Select file",
                                                           filetypes=(("csv files", "*.csv"), ("all files", "*.*")))
 
@@ -52,9 +79,12 @@ class VFA_gui:
                     pass
                 else:
                     print(', '.join(row))
-        # todo: call VFA.generate(root.filename), add the result into a second VFA containar
 
     def get_inserted_word(self):
+        """
+        Function for creating a Word instance from given word.
+        :return:
+        """
         print(self.entered_word.get())
         # todo: get inserted word, initiate a  Word instance and add it to the RUN instance, than RUN!
 
@@ -66,7 +96,7 @@ class VFA_gui:
         # todo: implement VFA.generate in VFA.
 
     def open_vfa(self):
-        """function for Getting csv path. """
+        """Function for getting csv path. """
         self.master.filename = filedialog.askopenfilename(initialdir="/", title="Select file",
                                                           filetypes=(("csv files", "*.csv"), ("all files", "*.*")))
         # Sanity check
@@ -206,6 +236,13 @@ class VFA_gui:
         self.fill_table(center_grid, starting_row)
 
     def fill_table(self, center_grid, starting_row):
+        """
+        Simple example for filling the table
+        todo: should be able to fill from loaded VFA
+        :param center_grid:
+        :param starting_row:
+        :return:
+        """
         for r in range(3):
             for c in range(0, 5, 2):
                 # col 0, is FROM
