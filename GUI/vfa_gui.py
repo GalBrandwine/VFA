@@ -1,5 +1,6 @@
 import csv
 import logging
+import threading
 from tkinter import *
 from tkinter import filedialog
 from tkinter import messagebox
@@ -7,6 +8,18 @@ from tkinter import ttk
 from tkinter.scrolledtext import ScrolledText
 
 from run import Run
+
+
+def worker(run):
+    # Skeleton worker function, runs in separate thread (see below)
+    # while True:
+    #     # Report time / date at 2-second intervals
+    #     time.sleep(2)
+    #     timeStr = time.asctime()
+    #     msg = 'Current time: ' + timeStr
+    #     logging.info(msg)
+
+    run.run()
 
 
 class TextHandler(logging.Handler):
@@ -50,7 +63,7 @@ class VFA_gui:
         self.vfa = None
         # VFA2
         self.secondary_vfa = None
-        
+
         # Word
         self.word = None
 
@@ -126,7 +139,7 @@ class VFA_gui:
         # Add text widget to display logging info
         st = ScrolledText(filewin, state='disabled')
         st.configure(font='TkFixedFont')
-        st.grid(column=0, row=1, sticky='w', columnspan=4)
+        st.grid(row=1, column=0, sticky='w', columnspan=4)
 
         # Create textLogger
         text_handler = TextHandler(st)
@@ -141,9 +154,45 @@ class VFA_gui:
 
         # Add the handler to logger
         logger.addHandler(text_handler)
+
         run = Run(logger, self.vfa, self.word)
-        logger.info("Executing a Run of initiated automata on a given word")
-        print("Executing a Run of initiated automata on a given word")
+
+        t1 = threading.Thread(target=worker, args=[run])
+
+        cancel = Button(filewin, text="save", command=lambda: self.delete(None, run, st))
+        cancel.grid(row=2, column=1, sticky='w', columnspan=4)
+
+        cancel = Button(filewin, text="abort", command=lambda: self.delete(None, run, None))
+        cancel.grid(row=2, column=2, sticky='w', columnspan=4)
+
+        cancel = Button(filewin, text="close", command=lambda: self.delete(filewin, run, None))
+        cancel.grid(row=2, column=3, sticky='w', columnspan=4)
+
+        t1.start()
+
+    def delete(self, *args):
+        """ Function for deleting objects while they are running.
+
+        USAGE:
+            arg[0]: the window we want to close. NOTE: we dont want to close the window each call.
+            arg[1]: Run instance - that perform the current run of a VFA on a Word.
+            arg[2]: ScrolledText - In order to get the logged text from widget into a file.
+        """
+        if args[0] is not None:
+            args[0].destroy()
+        if args[1] is not None:
+            args[1].stop()
+        if args[2] is not None:
+            self.file_save(args[2])
+
+    def file_save(self, text_frame):
+        """ Save log from ScrolledText, into a text file. """
+        f = filedialog.asksaveasfile(mode='w', defaultextension=".txt")
+        if f is None:  # asksaveasfile return `None` if dialog closed with "cancel".
+            return
+        text2save = str(text_frame.get(1.0, END))  # starts from `1.0`, not `0.0`
+        f.write(text2save)
+        f.close()  # `()` was missing.
 
     def emptiness(self):
         """
@@ -316,8 +365,11 @@ class VFA_gui:
         button = Button(right, text="intersect", command=self.intersect)
         button.grid(row=6, column=0, pady=5, sticky="ew")
 
+        # Separator
+        ttk.Separator(right, orient=HORIZONTAL).grid(row=7, column=0, pady=30, sticky="ew")
+
         close_button = Button(right, text="Close", command=master.quit)
-        close_button.grid(row=7, columnspan=3)
+        close_button.grid(row=8, columnspan=3, sticky="ew")
 
     def create_center_widgets(self, master):
         """
