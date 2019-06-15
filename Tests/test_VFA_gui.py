@@ -4,7 +4,7 @@ from GUI import vfa_gui
 class TestVFA_gui():
 
     def test_raise_expection(self):
-        """ test if excaption are handled in a new gui window.
+        """ test if exception are handled in a new gui window.
 
         Usage: Try to open a file that is not CSV.
         """

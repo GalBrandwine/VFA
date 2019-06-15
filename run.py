@@ -9,12 +9,14 @@ class Run:
         self.vfa = vfa
         self.word = word
         self.stop_flag = False
+        self.running = False
 
     def __del__(self):
-        print("Run is deleted, Adios")
+        print("Run closed, Adios")
 
     def run(self):
         # todo: implement run of vfa over word.
+        self.running = True
         self.logger.info("run started")
 
         # *************************************** STUPID LOOP FOR SHOWING DEBUG WORKS!!! *******************************
@@ -25,5 +27,8 @@ class Run:
             else:
                 break
 
+        self.running = False
+
     def stop(self):
         self.stop_flag = True
+        self.logger.info("run stopped")

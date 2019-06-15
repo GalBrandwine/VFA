@@ -9,8 +9,18 @@ from tkinter.scrolledtext import ScrolledText
 
 from run import Run
 
+# Logging configuration
+# Add the handler to logger
+logger = logging.getLogger('Run')
+logger.setLevel(logging.INFO)
+# Create file handler which logs even debug messages
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
 
 def worker(run):
+    """Skeleton worker function, runs in separate thread (see below)
+    
+    """
     # Skeleton worker function, runs in separate thread (see below)
     # while True:
     #     # Report time / date at 2-second intervals
@@ -23,8 +33,10 @@ def worker(run):
 
 
 class TextHandler(logging.Handler):
-    # This class allows you to log to a Tkinter Text or ScrolledText widget
-    # Adapted from Moshe Kaplan: https://gist.github.com/moshekaplan/c425f861de7bbf28ef06
+    """This class allows you to log to a Tkinter Text or ScrolledText widget
+
+    Adapted from Moshe Kaplan: https://gist.github.com/moshekaplan/c425f861de7bbf28ef06
+    """
 
     def __init__(self, text):
         # run the regular Handler __init__
@@ -61,7 +73,7 @@ class VFA_gui:
 
         # VFA1
         self.vfa = None
-        # VFA2
+        # VFA2 - for operations.
         self.secondary_vfa = None
 
         # Word
@@ -69,11 +81,13 @@ class VFA_gui:
 
     # Gui button's should activate inner class instance functions!
     def raise_expection(self, exception):
-        """ Raise exception in a separate gui. """
+        """ Raise exception in a separate window. """
+
         messagebox.showerror('Exception', exception)
 
     def message_window(self, message):
         """ Simple window message. """
+
         filewin = Toplevel(self.master)
         filewin.geometry("350x50")
         label = Label(filewin, text=message)
@@ -117,8 +131,9 @@ class VFA_gui:
 
     def generate_automata(self, filewin, num_of_const, num_of_states, width, unreachable_states, unwinded):
         """Function for generating VFA. """
-        filewin.destroy()
 
+        filewin.destroy()
+        # todo: add dummy proof - check for integer only
         print("VFA generated with the folowing parameters:\n"
               "num_of_const: \t\t{}\n"
               "num_of_states: \t\t{}\n"
@@ -144,14 +159,11 @@ class VFA_gui:
         # Create textLogger
         text_handler = TextHandler(st)
 
-        # Logging configuration
-        # Add the handler to logger
-        logger = logging.getLogger('Run')
-        logger.setLevel(logging.INFO)
-        # Create file handler which logs even debug messages
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
         text_handler.setFormatter(formatter)
 
+        # handle multiplication of handlers.
+        for handler in logger.handlers[:]:
+            logger.removeHandler(handler)
         # Add the handler to logger
         logger.addHandler(text_handler)
 
@@ -159,34 +171,37 @@ class VFA_gui:
 
         t1 = threading.Thread(target=worker, args=[run])
 
-        cancel = Button(filewin, text="save", command=lambda: self.delete(None, run, st))
+        cancel = Button(filewin, text="save", command=lambda: self.run_buttons_handler(None, run, st))
         cancel.grid(row=2, column=1, sticky='w', columnspan=4)
 
-        cancel = Button(filewin, text="abort", command=lambda: self.delete(None, run, None))
+        cancel = Button(filewin, text="abort", command=lambda: self.run_buttons_handler(None, run, None))
         cancel.grid(row=2, column=2, sticky='w', columnspan=4)
 
-        cancel = Button(filewin, text="close", command=lambda: self.delete(filewin, run, None))
+        cancel = Button(filewin, text="close", command=lambda: self.run_buttons_handler(filewin, run, None))
         cancel.grid(row=2, column=3, sticky='w', columnspan=4)
 
         t1.start()
 
-    def delete(self, *args):
+    def run_buttons_handler(self, *args):
         """ Function for deleting objects while they are running.
 
         USAGE:
-            arg[0]: the window we want to close. NOTE: we dont want to close the window each call.
+            arg[0]: the window we want to close (e.g filewin). NOTE: we dont want to close the window each call.
             arg[1]: Run instance - that perform the current run of a VFA on a Word.
             arg[2]: ScrolledText - In order to get the logged text from widget into a file.
         """
-        if args[0] is not None:
-            args[0].destroy()
-        if args[1] is not None:
+
+        if args[1] is not None and args[1].stop_flag is False:
+            # Stop only ir run is running
             args[1].stop()
         if args[2] is not None:
             self.file_save(args[2])
+        if args[0] is not None:
+            args[0].destroy()
 
     def file_save(self, text_frame):
-        """ Save log from ScrolledText, into a text file. """
+        """ Save log from ScrolledText widget, into a log file. """
+
         f = filedialog.asksaveasfile(mode='w', defaultextension=".txt")
         if f is None:  # asksaveasfile return `None` if dialog closed with "cancel".
             return
@@ -200,6 +215,7 @@ class VFA_gui:
         todo: call self.VFA.unwind. add the returned VFA into the VFA container.
         :return: unwinded new VFA
         """
+
         print("emptiness have been performed")
 
     def union(self):
@@ -233,6 +249,7 @@ class VFA_gui:
         todo: call self.VFA.complete.
         :return:
         """
+
         print("complete have been performed")
 
     def intersect(self):
@@ -241,6 +258,7 @@ class VFA_gui:
         todo: call VFA.generate(root.filename), add the result into a second VFA containar
         :return:
         """
+
         self.master.filename = filedialog.askopenfilename(initialdir="/", title="Select VFA to intersect with.",
                                                           filetypes=(("csv files", "*.csv"), ("all files", "*.*")))
 
@@ -265,6 +283,7 @@ class VFA_gui:
         Function for creating a Word instance from given word.
         :return:
         """
+
         print(word)
         # todo: get inserted word, initiate a  Word instance and add it to the RUN instance, than RUN!
 
@@ -285,12 +304,14 @@ class VFA_gui:
                     # todo: call VFA.generate(root.filename)
             print("VFA loaded: \n")
         except FileNotFoundError as err:
+            self.raise_expection(err)
             pass
         except Exception as err:
             self.raise_expection(err)
 
     def load_word(self):
         """Function for getting word_file path. """
+
         self.master.filename = filedialog.askopenfilename(initialdir="/", title="Select file for word reading",
                                                           filetypes=(("txt files", "*.txt"), ("all files", "*.*")))
         # Sanity check
@@ -298,10 +319,11 @@ class VFA_gui:
             with open('{}'.format(self.master.filename), 'r') as txtfile:
                 print('{} '.format(txtfile.read()))
                 # todo: call Word(txtfile.read())
+                # todo: add label to gui: "word.begining(5) ... word.ending(5)"
             print("Word loaded! \n")
 
         except FileNotFoundError as err:
-            pass
+            self.raise_expection(err)
         except Exception as err:
             self.raise_expection(err)
 
@@ -314,6 +336,7 @@ class VFA_gui:
             * exit.
 
         """
+
         menubar = Menu(master)
         filemenu = Menu(menubar, tearoff=0)
         filemenu.add_command(label="New", command=self.new_vfa_window)
@@ -377,6 +400,7 @@ class VFA_gui:
         :param master:
         :return:
         """
+
         # Create center elements
         center_frame = Frame(master)
         center_frame.pack()
@@ -423,6 +447,7 @@ class VFA_gui:
         :param starting_row:
         :return:
         """
+
         for r in range(3):
             for c in range(0, 5, 2):
                 # col 0, is FROM
