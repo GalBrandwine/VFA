@@ -7,7 +7,7 @@ from tkinter import messagebox
 from tkinter import ttk
 from tkinter.scrolledtext import ScrolledText
 
-from run import Run
+from DVFApy.run import Run
 
 # Logging configuration
 # Add the handler to logger
