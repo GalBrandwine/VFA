@@ -14,7 +14,7 @@ class Run:
     def __del__(self):
         print("Run closed, Adios")
 
-    def run(self):
+    def run(self, dvfa, word):
         # todo: implement run of vfa over word.
         self.running = True
         self.logger.info("run started")
