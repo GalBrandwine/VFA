@@ -77,3 +77,16 @@ class TestConfig:
 
         # test
         assert temp_config.remaining_word == temp_remain_word
+
+    def test_y_war_read(self):
+        # setup
+        # create stuff for new config:
+        temp_state = State("Alons_first_state", True)
+        temp_remain_word = Word([1, 123, 44])
+        temp_bound_variable = dict()
+
+        # run
+        temp_config = Config(temp_state, temp_remain_word, temp_bound_variable)
+        temp_config.set_y_read()
+        # test
+        assert temp_config.is_y_read is True

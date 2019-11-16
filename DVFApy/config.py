@@ -9,14 +9,16 @@ class Config:
     for debugging purposes.
     """
 
-    def __init__(self, current_state: State, remaining_word: Word, bound_variables: dict) -> object:
+    def __init__(self, current_state: State, remaining_word: Word, bound_variables: dict,
+                 y_was_read: bool = False) -> object:
         """
 
         :rtype: object
         """
         self._current_state = current_state
         self._bound_variables = bound_variables
-        self._remaining_word = remaining_word  # the letters that stil neede to be read
+        self._remaining_word = remaining_word  # the letters that stil needed to be read
+        self._y_was_read = y_was_read
 
     @property  # python getter
     def current_state(self):
@@ -29,6 +31,13 @@ class Config:
     @property
     def remaining_word(self) -> Word:
         return self._remaining_word
+
+    @property
+    def is_y_read(self) -> bool:
+        return self._y_was_read
+
+    def set_y_read(self):
+        self._y_was_read = True
 
     def is_current_state_accepting(self) -> bool:
         # stating if the state we are on is accepting
