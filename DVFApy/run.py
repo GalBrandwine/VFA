@@ -83,7 +83,7 @@ class Run:
                 # Now we want to perform the transition.
                 next_state = self._current_config.current_state.transition(symbol)
 
-        elif current_letter in self._dvfa.var_set:
+        elif variable_name in self._dvfa.var_set:
             # letter is assign to variable.
             # NOTE: if variable_name is not None  AND there's no transition, than the DVFA is not legal.
             next_state = self._current_config.current_state.transition(variable_name)

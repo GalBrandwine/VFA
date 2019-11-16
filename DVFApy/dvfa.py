@@ -2,7 +2,7 @@ from DVFApy.state import State
 
 
 class DVFA:
-    """Class for holding a VFA. """
+    """Class for holding a DVFA. """
 
     def __init__(self, starting_state: State = None):
         self._starting_state: State = starting_state
