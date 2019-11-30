@@ -22,3 +22,4 @@ class State:
     @property
     def is_accepting(self):
         return self._is_accepting
+

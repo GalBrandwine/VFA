@@ -1,7 +1,5 @@
-from DVFApy.word import Word
-from DVFApy.state import State
-from DVFApy.dvfa import DVFA
-from DVFApy.run import Run
+import DVFApy as dvfa_tool
+from Utils import dvfa_generator
 
 
 class TestRun:
@@ -12,16 +10,16 @@ class TestRun:
         # one constant.
 
         # setup
-        word = Word([1])
+        word = dvfa_tool.word.Word([1])
 
-        state1 = State("s1", False)
-        state2 = State("s2", True)
+        state1 = dvfa_tool.state.State("s1", False)
+        state2 = dvfa_tool.state.State("s2", True)
         state1.add_transition(1, state2)
 
-        dvfa = DVFA(state1)
+        dvfa = dvfa_tool.dvfa.DVFA(state1)
 
         # run
-        run = Run(dvfa, word)
+        run = dvfa_tool.run.Run(dvfa, word)
         config = run.next_state()
 
         # test
@@ -37,16 +35,16 @@ class TestRun:
         # one variable.
 
         # setup
-        word = Word([1])
+        word = dvfa_tool.word.Word([1])
 
-        state1 = State("s1", False)
-        state2 = State("s2", True)
+        state1 = dvfa_tool.state.State("s1", False)
+        state2 = dvfa_tool.state.State("s2", True)
         state1.add_transition("x1", state2)
 
-        dvfa = DVFA(state1)
+        dvfa = dvfa_tool.dvfa.DVFA(state1)
 
         # run
-        run = Run(dvfa, word)
+        run = dvfa_tool.run.Run(dvfa, word)
         config = run.next_state()
 
         # test
@@ -62,16 +60,16 @@ class TestRun:
         # Y (wildcard).
 
         # setup
-        word = Word([1])
+        word = dvfa_tool.word.Word([1])
 
-        state1 = State("s1", False)
-        state2 = State("s2", True)
+        state1 = dvfa_tool.state.State("s1", False)
+        state2 = dvfa_tool.state.State("s2", True)
         state1.add_transition("y", state2)
 
-        dvfa = DVFA(state1)
+        dvfa = dvfa_tool.dvfa.DVFA(state1)
 
         # run
-        run = Run(dvfa, word)
+        run = dvfa_tool.run.Run(dvfa, word)
         config = run.next_state()
 
         # test
@@ -86,12 +84,12 @@ class TestRun:
         # test if we can properly create and run on a dvfa that accepts ALL 3pal.
 
         # setup
-        word = Word([1, 1, 1])
+        word = dvfa_tool.word.Word([1, 1, 1])
 
-        dvfa = self.create_3PAL_DVFA()
+        dvfa = dvfa_generator.create_3PAL_DVFA()
 
         # run
-        run = Run(dvfa, word)
+        run = dvfa_tool.run.Run(dvfa, word)
 
         break_flag = False
         config = None
@@ -108,12 +106,12 @@ class TestRun:
         # test if we can properly create and run on a dvfa that accepts ALL 3pal.
 
         # setup
-        word = Word([1, 2, 1])  # this is special case - it make our DVFA use the "y" wildcard.
+        word = dvfa_tool.word.Word([1, 2, 1])  # this is special case - it make our DVFA use the "y" wildcard.
 
-        dvfa = self.create_3PAL_DVFA()
+        dvfa = dvfa_generator.create_3PAL_DVFA()
 
         # run
-        run = Run(dvfa, word)
+        run = dvfa_tool.run.Run(dvfa, word)
 
         break_flag = False
         config = None
@@ -131,12 +129,12 @@ class TestRun:
         # test if we can properly create and run on a dvfa that accepts ALL 3pal.
 
         # setup
-        word = Word([1, 2, 2])
+        word = dvfa_tool.word.Word([1, 2, 2])
 
-        dvfa = self.create_3PAL_DVFA()
+        dvfa = dvfa_generator.create_3PAL_DVFA()
 
         # run
-        run = Run(dvfa, word)
+        run = dvfa_tool.run.Run(dvfa, word)
 
         break_flag = False
         config = None
@@ -153,12 +151,12 @@ class TestRun:
         # test if run can run on longer words that the designated language without crushing.
 
         # setup
-        word = Word([1, 2, 1, 3, 4, 5])
+        word = dvfa_tool.word.Word([1, 2, 1, 3, 4, 5])
 
-        dvfa = self.create_3PAL_DVFA()
+        dvfa = dvfa_generator.create_3PAL_DVFA()
 
         # run
-        run = Run(dvfa, word)
+        run = dvfa_tool.run.Run(dvfa, word)
 
         break_flag = False
         config = None
@@ -170,31 +168,3 @@ class TestRun:
         # test
         assert config.remaining_word.get_word_length() is 0
         assert config.is_current_state_accepting() is False
-
-    # **************************************** TESTING helpers ****************************************
-    def create_3PAL_DVFA(self) -> DVFA:
-        # Creating palindroms in length of 3
-
-        # setup
-        state1 = State("s1", False)
-        state2 = State("s2", False)
-        state3 = State("s3", False)
-        state4 = State("s4", True)
-        sink = State("sink", False)
-
-        state1.add_transition("x1", state2)
-        state2.add_transition("x1", state3)
-        state2.add_transition("y", state3)
-
-        state3.add_transition("x1", state4)
-
-        # create sink transitions
-        state3.add_transition("y", sink)
-        state4.add_transition("y", sink)
-        state4.add_transition("x1", sink)
-
-        sink.add_transition("y", sink)
-        sink.add_transition("x1", sink)
-
-        dvfa = DVFA(state1)
-        return dvfa
