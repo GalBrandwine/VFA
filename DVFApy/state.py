@@ -16,7 +16,7 @@ class State:
         return self._transition_map[letter]
 
     @property
-    def transition_map(self):
+    def transition_map(self) -> dict:
         return self._transition_map
 
     @property

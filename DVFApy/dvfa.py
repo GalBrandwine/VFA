@@ -1,4 +1,5 @@
 from DVFApy.state import State
+import numpy as np
 
 
 class DVFA:
@@ -43,15 +44,14 @@ class DVFA:
         :return: (unwinded_DVFA, map[key=state,value=[symbols]])
         """
         # Starting point, get first state, as
-        starting_tuple = [A.starting_state, {}]
-
-        tuple_set = set()
-        tuple_set.add(starting_tuple)
+        starting_tuple = np.array([(A.starting_state, {})])
+        tuple_set = []
+        tuple_set.append(starting_tuple)
         u_state = DVFA._recursive_unwinding(A, starting_tuple, tuple_set)
         return DVFA(u_state), tuple_set
 
     @staticmethod
-    def _recursive_unwinding(A, current_tuple: tuple, tuple_set: set) -> State:
+    def _recursive_unwinding(A, current_tuple: np.ndarray, tuple_set: list) -> State:
         """
 
         :param A: a DVFA
@@ -59,22 +59,22 @@ class DVFA:
         :param tuple_set: the set of all the tuples.
         :return: U_start_state.
         """
-        result_map = map()
-        for symbol, next_state in current_tuple[0].transition_map:
+        result_map = dict()
+        for symbol, next_state in current_tuple[0][0].transition_map.items():
             # iterate on all {symbol,state} transition of this state.
-            next_tuple = map()
+            next_tuple = dict()
             if symbol == "y":
                 # optimization.
                 # if symbol is wildcard, don't pass on all the var_set.
-                next_tuple[next_state] = current_tuple[1].union(symbol)
+                next_tuple[next_state] = current_tuple[0][1].update({symbol})
             elif symbol in A.var_set:
                 # if symbol is known as a variable or a WILDCARD in this DVFA,
                 # then add it to current tuple read variables set,
                 # because its a variable that was read in order to get to this state.
-                next_tuple[next_state] = current_tuple[1].union(symbol)
+                next_tuple[next_state] = current_tuple[0][1].update({symbol})
             else:
                 # if the symbol is not in this DVFA variable set.
-                next_tuple[next_state] = current_tuple[1]
+                next_tuple[next_state] = current_tuple[0][1]
 
             if next_state in tuple_set:  # TODO: alon need to implement this
                 pass
