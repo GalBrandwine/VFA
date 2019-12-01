@@ -1,5 +1,4 @@
 from DVFApy.state import State
-import numpy as np
 
 
 class DVFA:
@@ -44,14 +43,12 @@ class DVFA:
         :return: (unwinded_DVFA, map[key=state,value=[symbols]])
         """
         # Starting point, get first state, as
-        starting_tuple = np.array([(A.starting_state, {})])
-        tuple_set = []
-        tuple_set.append(starting_tuple)
-        u_state = DVFA._recursive_unwinding(A, starting_tuple, tuple_set)
-        return DVFA(u_state), tuple_set
+        u_states_dict = dict();
+        u_state = DVFA._recursive_unwinding(A, current_tuple=None, tuple_set=None, u_states_dict=u_states_dict, is_first=True)
+        return DVFA(u_state), u_states_dict
 
     @staticmethod
-    def _recursive_unwinding(A, current_tuple: np.ndarray, tuple_set: list) -> State:
+    def _recursive_unwinding(A, current_tuple: tuple, tuple_set: set, u_states_dict:dict, is_first: bool) -> State:
         """
 
         :param A: a DVFA
@@ -59,36 +56,53 @@ class DVFA:
         :param tuple_set: the set of all the tuples.
         :return: U_start_state.
         """
+        if is_first:
+            starting_tuple = (A.starting_state, frozenset())
+            tuple_set = set()
+            tuple_set.add(starting_tuple)
+            current_tuple = starting_tuple
+
+        # construct the name of the result state.
+        new_name = "{0} {{1}}".format(current_tuple[0].name, ",".join(current_tuple[1]))
+        is_accepting = current_tuple[0].is_accepting
+        new_state = State(name=new_name, is_accepting=is_accepting)
+        u_states_dict.update({current_tuple: new_state})
+
         result_map = dict()
-        for symbol, next_state in current_tuple[0][0].transition_map.items():
+        for symbol, next_state in current_tuple[0].transition_map.items():
             # iterate on all {symbol,state} transition of this state.
-            next_tuple = dict()
+            next_symbols = set()
             if symbol == "y":
                 # optimization.
                 # if symbol is wildcard, don't pass on all the var_set.
-                next_tuple[next_state] = current_tuple[0][1].update({symbol})
+                next_symbols = next_symbols.union(current_tuple[1])
+                next_symbols.add("y")
+                next_symbols = frozenset(next_symbols)
             elif symbol in A.var_set:
                 # if symbol is known as a variable or a WILDCARD in this DVFA,
                 # then add it to current tuple read variables set,
                 # because its a variable that was read in order to get to this state.
-                next_tuple[next_state] = current_tuple[0][1].update({symbol})
+                next_symbols = next_symbols.union(current_tuple[1])
+                next_symbols.add(symbol)
+                next_symbols = frozenset(next_symbols)
             else:
                 # if the symbol is not in this DVFA variable set.
-                next_tuple[next_state] = current_tuple[0][1]
+                next_symbols = frozenset(current_tuple[1])
 
-            if next_state in tuple_set:  # TODO: alon need to implement this
-                pass
+
+            if (next_state, next_symbols) in u_states_dict.keys():
+                result_state = u_states_dict[(next_state, next_symbols)]
             else:
-                tuple_set = tuple_set.union({next_tuple})
-                result = DVFA._recursive_unwinding(A, next_tuple, tuple_set)
-                result_map[symbol] = result
+                next_tuple = (next_state, next_symbols)
+                tuple_set.add(next_tuple)
 
-            # TODO: fix naming problem
+                result_state = DVFA._recursive_unwinding(A=A,
+                                                         current_tuple=next_tuple,
+                                                         tuple_set=tuple_set,
+                                                         u_states_dict=u_states_dict,
+                                                     is_first=False)
+                result_map[symbol] = result_state
 
-            # construct the name of the result state.
-            # result_state_name = result_state_name.join(current_tuple[1])
-
-            result_state = State(current_tuple[0].name, current_tuple[0].is_accepting)
-        for symbol, state in result_map:
-            result_state.add_transition(symbol, state)
-        return result_state
+        for sym, state in result_map.items():
+            new_state.add_transition(sym, state)
+        return new_state
