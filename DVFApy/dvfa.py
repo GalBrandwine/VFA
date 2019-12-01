@@ -44,18 +44,17 @@ class DVFA:
         """
         # Starting point, get first state, as
         u_states_dict = dict();
-        u_state = DVFA._recursive_unwinding(A, current_tuple=None, tuple_set=None, u_states_dict=u_states_dict, is_first=True)
+        u_state = DVFA._recursive_unwinding(A, current_tuple=None, u_states_dict=u_states_dict, is_first=True)
         return DVFA(u_state), u_states_dict
 
     @staticmethod
-    def _recursive_unwinding(A, current_tuple: tuple, tuple_set: set, u_states_dict:dict, is_first: bool) -> State:
+    def _recursive_unwinding(A, current_tuple: tuple, u_states_dict:dict, is_first: bool) -> State:
         """
         The first run of recursive unwinding will init current_tuple and tuple_set, this was done so that each call to
         _recursive_unwinding will create one state exactly
         :param A: The target DVFA
         :param current_tuple: The current tuple of <state, set> where set is a frozenset of the letters used to reach
         state
-        :param tuple_set: Set of all tuples
         :param u_states_dict: A dict containing all {tuple:state} state is from the new (unwinded) DVFA
         :param is_first: Set True for the first call, False for the rest, used to init params
         :return: State that is the first state of the DVFA
@@ -63,8 +62,6 @@ class DVFA:
         if is_first:
             # init some data structures, frozenset can be used as a key in dict, as its immutable
             starting_tuple = (A.starting_state, frozenset())
-            tuple_set = set()
-            tuple_set.add(starting_tuple)
             current_tuple = starting_tuple
 
         # construct the result state
@@ -101,7 +98,6 @@ class DVFA:
             else:
                 # if the symbol is not in this DVFA variable set.
                 next_symbols = frozenset(current_tuple[1])
-
             # if true - it means that the state we need already exists in u_states_dict, we can simply take an existing
             # state from the unwinded DVFA
             next_tuple = (next_state, next_symbols)
@@ -111,14 +107,10 @@ class DVFA:
 
             # else - we need to calculate the rest of the transitions
             else:
-                # preventing duplications
-                tuple_set.add(next_tuple)
-
                 result_state = DVFA._recursive_unwinding(A=A,
                                                          current_tuple=next_tuple,
-                                                         tuple_set=tuple_set,
                                                          u_states_dict=u_states_dict,
-                                                     is_first=False)
+                                                         is_first=False)
                 transition_map[symbol] = result_state
 
         # create the state's transition map
