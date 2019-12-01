@@ -50,30 +50,43 @@ class DVFA:
     @staticmethod
     def _recursive_unwinding(A, current_tuple: tuple, tuple_set: set, u_states_dict:dict, is_first: bool) -> State:
         """
-
-        :param A: a DVFA
-        :param current_tuple: a tuple of a state and a list of all tha variables read to reach this state
-        :param tuple_set: the set of all the tuples.
-        :return: U_start_state.
+        The first run of recursive unwinding will init current_tuple and tuple_set, this was done so that each call to
+        _recursive_unwinding will create one state exactly
+        :param A: The target DVFA
+        :param current_tuple: The current tuple of <state, set> where set is a frozenset of the letters used to reach
+        state
+        :param tuple_set: Set of all tuples
+        :param u_states_dict: A dict containing all {tuple:state} state is from the new (unwinded) DVFA
+        :param is_first: Set True for the first call, False for the rest, used to init params
+        :return: State that is the first state of the DVFA
         """
         if is_first:
+            # init some data structures, frozenset can be used as a key in dict, as its immutable
             starting_tuple = (A.starting_state, frozenset())
             tuple_set = set()
             tuple_set.add(starting_tuple)
             current_tuple = starting_tuple
 
-        # construct the name of the result state.
-        new_name = "{0} {{1}}".format(current_tuple[0].name, ",".join(current_tuple[1]))
+        # construct the result state
+        # name for ex. "s1 (x1,y)"
+        new_name = "{0} ({1})".format(current_tuple[0].name, ",".join(current_tuple[1]))
+        # so that L(A) will be the same as L(U(A))
         is_accepting = current_tuple[0].is_accepting
+        # create the state and put it in the dict, the dict has two purposes:
+        # I) so that we can save newly generated states, this is done to prevent state duplication (and in some cases,
+        # infinite loops)
+        # II) return value to the user
         new_state = State(name=new_name, is_accepting=is_accepting)
         u_states_dict.update({current_tuple: new_state})
 
-        result_map = dict()
+        # the newly minted state transition map
+        transition_map = dict()
+
+        # iterate on each {symbol,state} transition of this state.
         for symbol, next_state in current_tuple[0].transition_map.items():
-            # iterate on all {symbol,state} transition of this state.
             next_symbols = set()
             if symbol == "y":
-                # optimization.
+                # optimization
                 # if symbol is wildcard, don't pass on all the var_set.
                 next_symbols = next_symbols.union(current_tuple[1])
                 next_symbols.add("y")
@@ -89,11 +102,16 @@ class DVFA:
                 # if the symbol is not in this DVFA variable set.
                 next_symbols = frozenset(current_tuple[1])
 
-
-            if (next_state, next_symbols) in u_states_dict.keys():
+            # if true - it means that the state we need already exists in u_states_dict, we can simply take an existing
+            # state from the unwinded DVFA
+            next_tuple = (next_state, next_symbols)
+            if next_tuple in u_states_dict.keys():
                 result_state = u_states_dict[(next_state, next_symbols)]
+                transition_map[symbol] = result_state
+
+            # else - we need to calculate the rest of the transitions
             else:
-                next_tuple = (next_state, next_symbols)
+                # preventing duplications
                 tuple_set.add(next_tuple)
 
                 result_state = DVFA._recursive_unwinding(A=A,
@@ -101,8 +119,9 @@ class DVFA:
                                                          tuple_set=tuple_set,
                                                          u_states_dict=u_states_dict,
                                                      is_first=False)
-                result_map[symbol] = result_state
+                transition_map[symbol] = result_state
 
-        for sym, state in result_map.items():
+        # create the state's transition map
+        for sym, state in transition_map.items():
             new_state.add_transition(sym, state)
         return new_state
