@@ -423,6 +423,9 @@ class VFA_gui:
         center_grid = Frame(center_frame, width=300, height=300, pady=50, padx=50)
         center_grid.grid(row=0, sticky="ew")
 
+        # TODO: add load DVFA
+        # TODO: add generate VDFA
+        # TODO: move load word to outher section
         # VDFA 1
         col = 0
         word_button = Label(center_grid, text="Enter word:")
