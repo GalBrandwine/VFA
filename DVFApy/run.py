@@ -21,7 +21,12 @@ class Run:
     def next_state(self) -> Config:
         next_state: State = None
         # get the current letter from remaining letters in Word
-        current_letter = self._word.get_letter(self._index)
+        try:
+            # try to get the letter - may raise exception if word is empty.
+            current_letter = self._word.get_letter(self._index)
+        except Exception as err:
+            print(err)
+            # TODO: raise package DVFA_logic exception
 
         # Get our "Running history".
         # this map holds all the letters that we have seen in previews states,
@@ -98,7 +103,12 @@ class Run:
 
         return self._current_config
 
-    # def run(self):
+    def run(self) -> bool:
+        config = self._current_config
+        while not config.has_finished():
+            config = self.next_state()
+        return config.is_current_state_accepting()
+
     #     # todo: implement run of dvfa over word.
     #     self.is_running = True
     #     print("run started")

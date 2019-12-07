@@ -43,12 +43,12 @@ class DVFA:
         :return: (unwinded_DVFA, map[key=state,value=[symbols]])
         """
         # Starting point, get first state, as
-        u_states_dict = dict();
+        u_states_dict = dict()
         u_state = DVFA._recursive_unwinding(A, current_tuple=None, u_states_dict=u_states_dict, is_first=True)
         return DVFA(u_state), u_states_dict
 
     @staticmethod
-    def _recursive_unwinding(A, current_tuple: tuple, u_states_dict:dict, is_first: bool) -> State:
+    def _recursive_unwinding(A, current_tuple: tuple, u_states_dict: dict, is_first: bool) -> State:
         """
         The first run of recursive unwinding will init current_tuple and tuple_set, this was done so that each call to
         _recursive_unwinding will create one state exactly
@@ -117,3 +117,37 @@ class DVFA:
         for sym, state in transition_map.items():
             new_state.add_transition(sym, state)
         return new_state
+
+    @staticmethod
+    def intersect(A, B):
+        """
+
+        :param A: DVFA
+        :param B: DVFA
+        :return: intersected DVFA
+        """
+        U1, _ = DVFA.unwind(A)
+        U2, _ = DVFA.unwind(B)
+
+        u1_current_state_name = U1.starting_state.name
+        u2_current_state_name = U2.starting_state.name
+        is_current_state_accepting = U1.starting_state.is_accepting and U2.starting_state.is_accepting
+
+        new_starting_state = State(name="{}_{}".format(u1_current_state_name, u2_current_state_name),
+                                   is_accepting=is_current_state_accepting)
+
+        rules_set = dict()
+        rules_set[(U1.starting_state, U2.starting_state, frozenset())] = new_starting_state
+
+        DVFA._recursive_intersect(new_starting_state, rules_set)
+        return DVFA(starting_state=new_starting_state)
+
+    @staticmethod
+    def _recursive_intersect(current_state: State, rules_set: dict):
+        """
+
+        :param current_state: a State
+        :param rules_set: {State1,State2,frozenset(symbol1,symbol2) }
+        :return:
+        """
+        current_state_rules = rules_set[(_, _, current_state,)]

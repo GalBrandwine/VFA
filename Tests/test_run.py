@@ -168,3 +168,18 @@ class TestRun:
         # test
         assert config.remaining_word.get_word_length() is 0
         assert config.is_current_state_accepting() is False
+
+    def test_3PAL_dvfa_on_empty_word(self):
+        # test that 3pal vdfa not accepting an empty word
+
+        # setup
+        word = dvfa_tool.word.Word([])
+
+        dvfa = dvfa_generator.create_3PAL_DVFA()
+
+        # run
+        run = dvfa_tool.run.Run(dvfa, word)
+        res = run.run()
+
+        # test
+        assert res is False  # cant accept empty word
