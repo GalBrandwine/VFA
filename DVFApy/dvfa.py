@@ -1,5 +1,4 @@
 from DVFApy.state import State
-import numpy as np
 
 
 class DVFA:
@@ -44,51 +43,77 @@ class DVFA:
         :return: (unwinded_DVFA, map[key=state,value=[symbols]])
         """
         # Starting point, get first state, as
-        starting_tuple = np.array([(A.starting_state, {})])
-        tuple_set = []
-        tuple_set.append(starting_tuple)
-        u_state = DVFA._recursive_unwinding(A, starting_tuple, tuple_set)
-        return DVFA(u_state), tuple_set
+        u_states_dict = dict();
+        u_state = DVFA._recursive_unwinding(A, current_tuple=None, u_states_dict=u_states_dict, is_first=True)
+        return DVFA(u_state), u_states_dict
 
     @staticmethod
-    def _recursive_unwinding(A, current_tuple: np.ndarray, tuple_set: list) -> State:
+    def _recursive_unwinding(A, current_tuple: tuple, u_states_dict:dict, is_first: bool) -> State:
         """
+        The first run of recursive unwinding will init current_tuple and tuple_set, this was done so that each call to
+        _recursive_unwinding will create one state exactly
+        :param A: The target DVFA
+        :param current_tuple: The current tuple of <state, set> where set is a frozenset of the letters used to reach
+        state
+        :param u_states_dict: A dict containing all {tuple:state} state is from the new (unwinded) DVFA
+        :param is_first: Set True for the first call, False for the rest, used to init params
+        :return: State that is the first state of the DVFA
+        """
+        if is_first:
+            # init some data structures, frozenset can be used as a key in dict, as its immutable
+            starting_tuple = (A.starting_state, frozenset())
+            current_tuple = starting_tuple
 
-        :param A: a DVFA
-        :param current_tuple: a tuple of a state and a list of all tha variables read to reach this state
-        :param tuple_set: the set of all the tuples.
-        :return: U_start_state.
-        """
-        result_map = dict()
-        for symbol, next_state in current_tuple[0][0].transition_map.items():
-            # iterate on all {symbol,state} transition of this state.
-            next_tuple = dict()
+        # construct the result state
+        # name for ex. "s1 (x1,y)"
+        new_name = "{0} ({1})".format(current_tuple[0].name, ",".join(current_tuple[1]))
+        # so that L(A) will be the same as L(U(A))
+        is_accepting = current_tuple[0].is_accepting
+        # create the state and put it in the dict, the dict has two purposes:
+        # I) so that we can save newly generated states, this is done to prevent state duplication (and in some cases,
+        # infinite loops)
+        # II) return value to the user
+        new_state = State(name=new_name, is_accepting=is_accepting)
+        u_states_dict.update({current_tuple: new_state})
+
+        # the newly minted state transition map
+        transition_map = dict()
+
+        # iterate on each {symbol,state} transition of this state.
+        for symbol, next_state in current_tuple[0].transition_map.items():
+            next_symbols = set()
             if symbol == "y":
-                # optimization.
-               # if symbol is wildcard, don't pass on all the var_set.
-                next_tuple[next_state] = current_tuple[0][1].update({symbol})
+                # optimization
+                # if symbol is wildcard, don't pass on all the var_set.
+                next_symbols = next_symbols.union(current_tuple[1])
+                next_symbols.add("y")
+                next_symbols = frozenset(next_symbols)
             elif symbol in A.var_set:
                 # if symbol is known as a variable or a WILDCARD in this DVFA,
                 # then add it to current tuple read variables set,
                 # because its a variable that was read in order to get to this state.
-                next_tuple[next_state] = current_tuple[0][1].update({symbol})
+                next_symbols = next_symbols.union(current_tuple[1])
+                next_symbols.add(symbol)
+                next_symbols = frozenset(next_symbols)
             else:
                 # if the symbol is not in this DVFA variable set.
-                next_tuple[next_state] = current_tuple[0][1]
+                next_symbols = frozenset(current_tuple[1])
+            # if true - it means that the state we need already exists in u_states_dict, we can simply take an existing
+            # state from the unwinded DVFA
+            next_tuple = (next_state, next_symbols)
+            if next_tuple in u_states_dict.keys():
+                result_state = u_states_dict[(next_state, next_symbols)]
+                transition_map[symbol] = result_state
 
-            if next_state in tuple_set:  # TODO: alon need to implement this
-                pass
+            # else - we need to calculate the rest of the transitions
             else:
-                tuple_set = tuple_set.union({next_tuple})
-                result = DVFA._recursive_unwinding(A, next_tuple, tuple_set)
-                result_map[symbol] = result
+                result_state = DVFA._recursive_unwinding(A=A,
+                                                         current_tuple=next_tuple,
+                                                         u_states_dict=u_states_dict,
+                                                         is_first=False)
+                transition_map[symbol] = result_state
 
-            # TODO: fix naming problem
-
-            # construct the name of the result state.
-            # result_state_name = result_state_name.join(current_tuple[1])
-
-            result_state = State(current_tuple[0].name, current_tuple[0].is_accepting)
-        for symbol, state in result_map:
-            result_state.add_transition(symbol, state)
-        return result_state
+        # create the state's transition map
+        for sym, state in transition_map.items():
+            new_state.add_transition(sym, state)
+        return new_state

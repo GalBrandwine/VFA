@@ -47,7 +47,7 @@ class Run:
              2. subscribe from U the dvfa constat group.
              3. subscribe from U the assigned variables.
              
-             4. the result of all this action suppose to be group with 1 elemnt ONLY! If else it is not a deterministic DVFA.
+             4. the result of all this action suppose to be group with 1 element ONLY! If else it is not a deterministic DVFA.
              """
             current_state_symbol_set = set(self._current_config.current_state.transition_map.keys())
             current_state_symbol_set = current_state_symbol_set - self._dvfa.const_set
