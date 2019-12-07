@@ -65,7 +65,7 @@ class DVFA:
             next_tuple = dict()
             if symbol == "y":
                 # optimization.
-                # if symbol is wildcard, don't pass on all the var_set.
+               # if symbol is wildcard, don't pass on all the var_set.
                 next_tuple[next_state] = current_tuple[0][1].update({symbol})
             elif symbol in A.var_set:
                 # if symbol is known as a variable or a WILDCARD in this DVFA,
