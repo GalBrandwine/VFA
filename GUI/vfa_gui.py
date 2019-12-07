@@ -7,7 +7,8 @@ from tkinter import messagebox
 from tkinter import ttk
 from tkinter.scrolledtext import ScrolledText
 
-from DVFApy.run import Run
+import DVFApy as dvfa_tool
+from Utils import dvfa_generator
 
 # Logging configuration
 # Add the handler to logger
@@ -15,6 +16,9 @@ logger = logging.getLogger('Run')
 logger.setLevel(logging.INFO)
 # Create file handler which logs even debug messages
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
+dvfa_1 = None
+dvfa_2 = None
 
 
 def worker(run):
@@ -101,33 +105,43 @@ class VFA_gui:
         filewin.title("VFA generator.")
         filewin.geometry("450x270")
 
-        label = Label(filewin, text="Num of const: ")
-        label.grid(row=1, column=1, pady=5, padx=5)
-        num_of_const = Entry(filewin, bd=5)
-        num_of_const.grid(row=1, column=2, pady=5, padx=5)
-
-        label = Label(filewin, text="Num of states: ")
-        label.grid(row=2, column=1, pady=5, padx=5)
-        num_of_states = Entry(filewin, bd=5)
-        num_of_states.grid(row=2, column=2, pady=5, padx=5)
-
-        label = Label(filewin, text="Width: ")
-        label.grid(row=3, column=1, pady=5, padx=5)
-        width = Entry(filewin, bd=5)
-        width.grid(row=3, column=2, pady=5, padx=5)
+        # label = Label(filewin, text="Num of const: ")
+        # label.grid(row=1, column=1, pady=5, padx=5)
+        # num_of_const = Entry(filewin, bd=5)
+        # num_of_const.grid(row=1, column=2, pady=5, padx=5)
+        #
+        # label = Label(filewin, text="Num of states: ")
+        # label.grid(row=2, column=1, pady=5, padx=5)
+        # num_of_states = Entry(filewin, bd=5)
+        # num_of_states.grid(row=2, column=2, pady=5, padx=5)
+        #
+        # label = Label(filewin, text="Width: ")
+        # label.grid(row=3, column=1, pady=5, padx=5)
+        # width = Entry(filewin, bd=5)
+        # width.grid(row=3, column=2, pady=5, padx=5)
+        #
 
         check_var1 = BooleanVar()
-        check_var2 = BooleanVar()
-        C1 = Checkbutton(filewin, text="Unreachable states", variable=check_var1, onvalue=1, offvalue=0, height=5,
+        # check_var2 = BooleanVar()
+        C1 = Checkbutton(filewin, text="3PAL", variable=check_var1, onvalue=1, offvalue=0, height=5,
                          width=20)
-        C2 = Checkbutton(filewin, text="Unwinded", variable=check_var2, onvalue=1, offvalue=0, height=5, width=20)
+        # C2 = Checkbutton(filewin, text="Unwinded", variable=check_var2, onvalue=1, offvalue=0, height=5, width=20)
         C1.grid(row=4, column=1, pady=5, padx=5)
-        C2.grid(row=4, column=2, pady=5, padx=5)
-
+        # C2.grid(row=4, column=2, pady=5, padx=5)
+        #
         button = Button(filewin, text="Ok",
-                        command=lambda: self.generate_automata(filewin, num_of_const.get(), num_of_states.get(),
-                                                               width.get(), check_var1.get(), check_var2.get()))
+                        command=lambda: self.generate_automata_new(filewin, check_var1.get()))
+        # button = Button(filewin, text="Ok",
+        #                 command=lambda: self.generate_automata(filewin, num_of_const.get(), num_of_states.get(),
+        #                                                        width.get(), check_var1.get(), check_var2.get()))
         button.grid(row=5, column=2, columnspan=3, pady=5, padx=5, sticky="ew")
+
+    def generate_automata_new(self, filewin, generate_3pal):
+        """Function for generating VFA. """
+
+        filewin.destroy()
+        # todo: add dummy proof - check for integer only
+        global_dvfa_1 = dvfa_generator.create_3PAL_DVFA()
 
     def generate_automata(self, filewin, num_of_const, num_of_states, width, unreachable_states, unwinded):
         """Function for generating VFA. """
@@ -401,40 +415,80 @@ class VFA_gui:
         :return:
         """
 
+        # create frame for 2 VDFA's
         # Create center elements
         center_frame = Frame(master)
         center_frame.pack()
 
-        center_grid = Frame(center_frame, width=300, height=300, pady=150, padx=50)
+        center_grid = Frame(center_frame, width=300, height=300, pady=50, padx=50)
         center_grid.grid(row=0, sticky="ew")
 
+        # VDFA 1
+        col = 0
         word_button = Label(center_grid, text="Enter word:")
-        word_button.grid(row=1, column=0, pady=5)
+        word_button.grid(row=1, column=col+0, pady=5)
 
         entered_word = Entry(center_grid, bd=5)
-        entered_word.grid(row=1, column=2, pady=5, padx=5)
+        entered_word.grid(row=1, column=col+2, pady=5, padx=5)
 
         button = Button(center_grid, text="Ok", command=lambda: self.get_inserted_word(entered_word.get()))
-        button.grid(row=1, column=3, pady=5, padx=5)
+        button.grid(row=1, column=col+3, pady=5, padx=5)
 
         load = Button(center_grid, text="Load word from file", command=self.load_word)
-        load.grid(row=2, columnspan=4, pady=10, sticky="ew")
+        load.grid(row=2, column=col,columnspan=4, pady=10, sticky="ew")
 
         # Separator
-        ttk.Separator(center_grid, orient=HORIZONTAL).grid(row=3, columnspan=10, pady=30, sticky="ew")
+        ttk.Separator(center_grid, orient=HORIZONTAL).grid(row=col+3, columnspan=10, pady=30, sticky="ew")
 
         # Table creation
         from_label = Label(center_grid, text="From")
-        from_label.grid(row=4, column=0, pady=5)
+        from_label.grid(row=4, column=col+0, pady=5)
         # VERT Separator
-        ttk.Separator(center_grid, orient=VERTICAL).grid(row=4, column=1, rowspan=30, pady=0, padx=5, sticky="ns")
+        ttk.Separator(center_grid, orient=VERTICAL).grid(row=4, column=col+1, rowspan=30, pady=0, padx=5, sticky="ns")
         from_label = Label(center_grid, text="Condition")
         from_label.grid(row=4, column=2, pady=5)
 
         # VERT Separator
-        ttk.Separator(center_grid, orient=VERTICAL).grid(row=4, column=3, rowspan=30, pady=0, padx=5, sticky="ns")
+        ttk.Separator(center_grid, orient=VERTICAL).grid(row=4, column=col+3, rowspan=30, pady=0, padx=5, sticky="ns")
         from_label = Label(center_grid, text="To")
         from_label.grid(row=4, column=4, pady=5)
+
+        starting_row = 5
+        self.fill_table(center_grid, starting_row)
+
+        # END of VDFA1
+        # HORZ seperator
+        ttk.Separator(center_grid, orient=VERTICAL).grid(row=0, column=5, rowspan=30, pady=0, padx=20, sticky="ns")
+
+        # VDFA 2
+        col = 6
+        word_button = Label(center_grid, text="Enter word:")
+        word_button.grid(row=1, column=col, pady=5)
+
+        entered_word = Entry(center_grid, bd=5)
+        entered_word.grid(row=1, column=col+2, pady=5, padx=5)
+
+        button = Button(center_grid, text="Ok", command=lambda: self.get_inserted_word(entered_word.get()))
+        button.grid(row=1, column=col+3, pady=5, padx=5)
+
+        load = Button(center_grid, text="Load word from file", command=self.load_word)
+        load.grid(row=2, column=col,columnspan=4, pady=10, sticky="ew")
+
+        # Separator
+        ttk.Separator(center_grid, orient=HORIZONTAL).grid(row=3, column=col,columnspan=10, pady=30, sticky="ew")
+
+        # Table creation
+        from_label = Label(center_grid, text="From")
+        from_label.grid(row=4, column=col+0, pady=5)
+        # VERT Separator
+        ttk.Separator(center_grid, orient=VERTICAL).grid(row=4, column=col+1, rowspan=30, pady=0, padx=5, sticky="ns")
+        from_label = Label(center_grid, text="Condition")
+        from_label.grid(row=4, column=col+2, pady=5)
+
+        # VERT Separator
+        ttk.Separator(center_grid, orient=VERTICAL).grid(row=4, column=col+3, rowspan=30, pady=0, padx=5, sticky="ns")
+        from_label = Label(center_grid, text="To")
+        from_label.grid(row=4, column=col+4, pady=5)
 
         starting_row = 5
         self.fill_table(center_grid, starting_row)
