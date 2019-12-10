@@ -18,12 +18,10 @@ class DVFA:
         # Our implementation of BFS,
         # in order to fill DVFA's variables set, and constants set.
 
-        my_bfs = list()
-        visited_states = set()
+        bfs_queue = [self._starting_state]
+        visited_states = set(bfs_queue)
 
-        my_bfs.append(self._starting_state)
-
-        for state in my_bfs:
+        for state in bfs_queue:
             for symbol, neighbor in state.transition_map.items():
 
                 if isinstance(symbol, str):
@@ -33,7 +31,48 @@ class DVFA:
                     self.const_set.add(symbol)
                 if neighbor not in visited_states:
                     visited_states.add(neighbor)
-                    my_bfs.append(neighbor)
+                    bfs_queue.append(neighbor)
+
+    def copy(self):
+        """
+
+        :return: this function returns a copy of the DVFA
+        """
+        # Run BFS to get a map of every state in A: new state in copy of A
+        bfs_queue = [self._starting_state]
+        visited_states = dict()
+        visited_states[self.starting_state] = State(name=self.starting_state.name,
+                                                    is_accepting=self.starting_state.is_accepting)
+
+        for state in bfs_queue:
+            for symbol, neighbor in state.transition_map.items():
+                if neighbor not in visited_states.keys():
+                    visited_states[neighbor] = State(name=neighbor.name,
+                                                     is_accepting=neighbor.is_accepting)
+                    bfs_queue.append(neighbor)
+                visited_states[state].add_transition(symbol=symbol, state=visited_states[neighbor])
+        return DVFA(starting_state=visited_states[self.starting_state])
+
+    def complement(self):
+        """
+
+        :return: this function returns a complementing DVFA
+        """
+        # Run BFS to get a map of every state in A: new state in copy of A
+        bfs_queue = [self._starting_state]
+        visited_states = dict()
+        visited_states[self.starting_state] = State(name=self.starting_state.name,
+                                                    is_accepting=(not self.starting_state.is_accepting))
+
+        for state in bfs_queue:
+            for symbol, neighbor in state.transition_map.items():
+                if neighbor not in visited_states.keys():
+                    visited_states[neighbor] = State(name=neighbor.name,
+                                                     is_accepting=(not neighbor.is_accepting))
+                    bfs_queue.append(neighbor)
+                visited_states[state].add_transition(symbol=symbol, state=visited_states[neighbor])
+        return DVFA(starting_state=visited_states[self.starting_state])
+
 
     @staticmethod
     def unwind(A):
