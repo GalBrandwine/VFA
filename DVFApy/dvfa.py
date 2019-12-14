@@ -4,7 +4,8 @@ from DVFApy.state import State
 class DVFA:
     """Class for holding a DVFA. """
 
-    def __init__(self, starting_state: State = None):
+    def __init__(self, name: str = None, starting_state: State = None):
+        self.name = name
         self._starting_state: State = starting_state
         self.var_set: set = set()
         self.const_set: set = set()
