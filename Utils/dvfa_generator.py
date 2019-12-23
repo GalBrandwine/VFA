@@ -3,7 +3,7 @@ import DVFApy as dvfa_tool
 
 # **************************************** TESTING helpers ****************************************
 def create_3PAL_DVFA() -> dvfa_tool.dvfa.DVFA:
-    # Creating palindroms in length of 3
+    # Creating palindrome in length of 3
 
     # setup
     state1 = dvfa_tool.state.State("s1", False)
@@ -54,11 +54,10 @@ def create_1_x_plus_DVFA() -> dvfa_tool.dvfa.DVFA:
     state3.add_transition(1, state4)
 
     state4.add_transition("x1", state3)
-    state4.add_transition("y",sink2)
+    state4.add_transition("y", sink2)
     state4.add_transition(1, sink2)
 
-
-    # create sink transitions
+    # Create sink transitions
     sink1.add_transition("y", sink1)
     sink1.add_transition(1, sink1)
 

@@ -1,3 +1,5 @@
+import os
+
 import PySimpleGUI as sg
 import re
 import hashlib
@@ -6,9 +8,11 @@ import DVFApy
 from Utils import dvfa_generator
 import Utils as utils
 
+# Gui config
 sg.ChangeLookAndFeel('GreenTan')
+popup_error_title = "Bad kitten!"
 
-popup_error_title = "Ban kitten!"
+# Global variables
 dvfa1 = None
 dvfa2 = None
 word = None
@@ -37,7 +41,7 @@ word_pane = [
     [sg.Button('Create', key="Create_WORD")],
     # Stupid invisible line for triggering an EVENT, after leading a file.
     [sg.Input(key='Load_WORD', enable_events=True, visible=False)],
-    [sg.FileBrowse("Load",key='Load_WORD_path', file_types=(("CSV Files", "*.csv"),), target='Load_WORD')],
+    [sg.FileBrowse("Load", key='Load_WORD_path', file_types=(("CSV Files", "*.csv"),), target='Load_WORD')],
     [sg.Input(key='save_WORD', enable_events=True, visible=False)],
     [sg.FileSaveAs(key='Save_WORD_path', file_types=(("CSV Files", "*.csv"),), target='save_WORD')]
 ]
@@ -55,7 +59,7 @@ left_dvfa_column = [
     [sg.Input(key='Load_DVFA1', enable_events=True, visible=False)],
     [sg.FileBrowse("Load", key="Load_DVFA1_path", file_types=(("PICKLE Files", "*.pickle"),), target='Load_DVFA1')],
     [sg.Input(key='save_DVFA1', enable_events=True, visible=False)],
-    [sg.FileSaveAs(key="Save_DVFA1_path")]
+    [sg.FileSaveAs(key='Save_DVFA1_path', file_types=(("PICKLE Files", "*.pickle"),), target='save_DVFA1')]
     # [sg.Text('Load DVFA:'), sg.InputText(), sg.FileBrowse(),
     #  sg.Checkbox('MD5'), sg.Checkbox('SHA1')
     #  ]
@@ -67,13 +71,13 @@ right_dvfa_column = [
     [sg.Input(key='Load_DVFA2', enable_events=True, visible=False)],
     [sg.FileBrowse("Load", key="Load_DVFA2_path", file_types=(("PICKLE Files", "*.pickle"),), target='Load_DVFA2')],
     [sg.Input(key='save_DVFA2', enable_events=True, visible=False)],
-    [sg.FileSaveAs(key="Save_DVFA2_path")]
+    [sg.FileSaveAs(key='Save_DVFA2_path', file_types=(("PICKLE Files", "*.pickle"),), target='save_DVFA2')]
 ]
 
 layout = [
     [sg.Column(left_dvfa_column, background_color='#d3dfda'), sg.Column(right_dvfa_column, background_color='#d3dfda'),
      sg.Column(word_pane, background_color='#d3dfda')],
-    [sg.Output(size=(88, 20)), sg.Column(right_button_pane, background_color='#d3dfda')],
+    [sg.Output(size=(80, 15)), sg.Column(right_button_pane, background_color='#d3dfda')],
     [sg.Submit(), sg.Cancel()]
 ]
 
@@ -169,15 +173,31 @@ def run_on_word(event: str, values: dict):
         print(message)
 
 
-def create_word_from_csv(path):
+def create_word_from_csv(path) -> DVFApy.word.Word:
     global word
     word = utils.word_loader.load(path)
     print("Word loaded: {}".format(word))
 
 
+def save_word(given_path: str):
+    path, name = os.path.split(given_path)
+    utils.word_saver.save(word, path, name)
+
+
+def save_dvfa(dvfa: DVFApy, given_path: str):
+    path, name = os.path.split(given_path)
+    utils.dvfa_saver.save(dvfa, path, name)
+
+
+def load_dvfa(given_path) -> DVFApy.dvfa.DVFA:
+    loaded_dvfa = utils.dvfa_loader.load(given_path)
+    return loaded_dvfa
+
+
 while True:  # The Event Loop
     event, values = window.read()
     print(event, values)  # debug
+    print('\n')
 
     if event in (None, 'Exit', 'Cancel'):
         break
@@ -202,7 +222,26 @@ while True:  # The Event Loop
                 print(" DVFA 2 Generated: {}".format(dvfa2))
             else:
                 print("DVFA 2 not generated!")
-
+    # Save DVFA1
+    if event == 'save_DVFA1':
+        if dvfa1 is None:
+            sg.popup_error("DVFA1 Not created yet!", title=popup_error_title, )
+        given_path = values['Save_DVFA1_path']
+        save_dvfa(dvfa1, given_path)
+    # Save DVFA2
+    if event == 'save_DVFA2':
+        if dvfa2 is None:
+            sg.popup_error("DVFA2 Not created yet!", title=popup_error_title, )
+        given_path = values['Save_DVFA2_path']
+        save_dvfa(dvfa2, given_path)
+    # Load DVFA1
+    if event == 'Load_DVFA1':
+        given_path = values['Load_DVFA1_path']
+        dvfa1 = load_dvfa(given_path)
+    # Load DVFA2
+    if event == 'Load_DVFA2':
+        given_path = values['Load_DVFA2_path']
+        dvfa2 = load_dvfa(given_path)
     # Create word button pressed
     if event == "Create_WORD":
         create_word_event, create_word_values = create_word_popup()
@@ -211,7 +250,8 @@ while True:  # The Event Loop
             print("Word generated = {}, length:{}".format(word.word, word.get_word_length()))
     # Save word to path
     if event == "save_WORD":
-        pass
+        given_path = values['Save_WORD_path']
+        save_word(given_path)
     # Load word from path
     if event == "Load_WORD":
         given_path = values['Load_WORD_path']
@@ -226,7 +266,7 @@ while True:  # The Event Loop
             run_event, run_values = run_popup()
             run_on_word(run_event, run_values)
         else:
-            print("Please create a WORD!")
+            sg.popup_error("First create a WORD!", title=popup_error_title, )
 
     if event == 'Submit':
         file1 = file2 = isitago = None
