@@ -39,6 +39,7 @@ def create_1_x_plus_DVFA() -> dvfa_tool.dvfa.DVFA:
     state1 = dvfa_tool.state.State("s1", False)
     state2 = dvfa_tool.state.State("s2", False)
     state3 = dvfa_tool.state.State("s3", True)
+    state4 = dvfa_tool.state.State("s4", False)
     sink1 = dvfa_tool.state.State("sink1", False)
     sink2 = dvfa_tool.state.State("sink2", False)
 
@@ -50,7 +51,12 @@ def create_1_x_plus_DVFA() -> dvfa_tool.dvfa.DVFA:
 
     state3.add_transition("x1", sink2)
     state3.add_transition("y", sink2)
-    state3.add_transition(1, state2)
+    state3.add_transition(1, state4)
+
+    state4.add_transition("x1", state3)
+    state4.add_transition("y",sink2)
+    state4.add_transition(1, sink2)
+
 
     # create sink transitions
     sink1.add_transition("y", sink1)
