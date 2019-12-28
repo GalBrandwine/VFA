@@ -89,7 +89,7 @@ class DVFA:
         u_state = DVFA._recursive_unwinding(A, current_tuple=None, u_states_dict=u_states_dict, is_first=True)
         for unwind_tuple, state in u_states_dict.items():
             u_result_dict[state] = unwind_tuple[1]
-        return DVFA(u_state), u_result_dict
+        return DVFA(starting_state=u_state, name="unwinded_{}".format(A.name)), u_result_dict
 
     @staticmethod
     def _recursive_unwinding(A, current_tuple: tuple, u_states_dict: dict, is_first: bool) -> State:
@@ -178,7 +178,7 @@ class DVFA:
         new_rule = (U1.starting_state, U2.starting_state, const_matchings)
         new_starting_state = DVFA._recursive_intersect(current_rule=new_rule, op_construct=op_construct)
 
-        return DVFA(starting_state=new_starting_state)
+        return DVFA(starting_state=new_starting_state, name="({}_intersect_{})".format(A.name, B.name))
 
     @staticmethod
     def _recursive_intersect(current_rule: tuple, op_construct):

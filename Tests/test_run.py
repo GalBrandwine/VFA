@@ -16,7 +16,7 @@ class TestRun:
         state2 = dvfa_tool.state.State("s2", True)
         state1.add_transition(1, state2)
 
-        dvfa = dvfa_tool.dvfa.DVFA(state1)
+        dvfa = dvfa_tool.dvfa.DVFA(starting_state=state1)
 
         # run
         run = dvfa_tool.run.Run(dvfa, word)
@@ -41,7 +41,7 @@ class TestRun:
         state2 = dvfa_tool.state.State("s2", True)
         state1.add_transition("x1", state2)
 
-        dvfa = dvfa_tool.dvfa.DVFA(state1)
+        dvfa = dvfa_tool.dvfa.DVFA(starting_state=state1)
 
         # run
         run = dvfa_tool.run.Run(dvfa, word)
@@ -66,7 +66,7 @@ class TestRun:
         state2 = dvfa_tool.state.State("s2", True)
         state1.add_transition("y", state2)
 
-        dvfa = dvfa_tool.dvfa.DVFA(state1)
+        dvfa = dvfa_tool.dvfa.DVFA(starting_state=state1)
 
         # run
         run = dvfa_tool.run.Run(dvfa, word)

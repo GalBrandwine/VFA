@@ -28,7 +28,7 @@ def create_3PAL_DVFA() -> dvfa_tool.dvfa.DVFA:
     sink.add_transition("y", sink)
     sink.add_transition("x1", sink)
 
-    dvfa = dvfa_tool.dvfa.DVFA("3PAL", state1)
+    dvfa = dvfa_tool.dvfa.DVFA(name="3PAL", starting_state=state1)
     return dvfa
 
 
@@ -65,5 +65,5 @@ def create_1_x_plus_DVFA() -> dvfa_tool.dvfa.DVFA:
     sink2.add_transition("y", sink2)
     sink2.add_transition(1, sink2)
 
-    dvfa = dvfa_tool.dvfa.DVFA("1_X_plus", state1)
+    dvfa = dvfa_tool.dvfa.DVFA(name="1_X_plus", starting_state=state1)
     return dvfa

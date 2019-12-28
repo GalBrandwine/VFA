@@ -48,8 +48,7 @@ class TestConfig:
         # test
         assert temp_config.is_current_state_accepting() is True
 
-    def test_has_finished(self):
-        # This test suppose to FAIL!
+    def test_has_not_finished(self):
         # We are creating a CONFIG with a word that is not empty
         # and testing if we have finished
 
@@ -63,7 +62,7 @@ class TestConfig:
         temp_config = Config(temp_state, temp_remain_word, temp_bound_variable)
 
         # test
-        assert temp_config.has_finished() is True
+        assert temp_config.has_finished() is False
 
     def test_remaining_word(self):
         # setup
