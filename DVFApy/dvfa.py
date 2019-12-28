@@ -74,7 +74,7 @@ class DVFA:
                                                      is_accepting=(not neighbor.is_accepting))
                     bfs_queue.append(neighbor)
                 visited_states[state].add_transition(symbol=symbol, state=visited_states[neighbor])
-        return DVFA(starting_state=visited_states[self.starting_state])
+        return DVFA(starting_state=visited_states[self.starting_state],name="complemented_{}".format(self.name))
 
     @staticmethod
     def unwind(A):
@@ -162,6 +162,9 @@ class DVFA:
             new_state.add_transition(sym, state)
         return new_state
 
+    @staticmethod
+    def union(A, B):
+        pass
     @staticmethod
     def intersect(A, B):
         """
