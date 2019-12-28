@@ -228,6 +228,7 @@ class TestDVFA:
         word3 = dvfa_tool.word.Word([1, 1, 1])
         word4 = dvfa_tool.word.Word([1, 2])
         word5 = dvfa_tool.word.Word([1, 2, 3, 2, 2, 1])
+
         word_list = [word1, word2, word3, word4, word5]
 
         # Run
