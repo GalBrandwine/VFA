@@ -173,15 +173,33 @@ class DVFA:
         U1, U1_dict = DVFA.unwind(A)
         U2, U2_dict = DVFA.unwind(B)
 
-        op_construct = BooleanOperatorConstruct(u1=U1, u1_dict=U1_dict, u2=U2, u2_dict=U2_dict)
+        op_construct = BooleanOperatorConstruct(u1=U1, u1_dict=U1_dict, u2=U2, u2_dict=U2_dict, is_union=False)
         const_matchings = op_construct.calculate_common_constants_matchings()
         new_rule = (U1.starting_state, U2.starting_state, const_matchings)
-        new_starting_state = DVFA._recursive_intersect(current_rule=new_rule, op_construct=op_construct)
+        new_starting_state = DVFA._boolean_operation(current_rule=new_rule, op_construct=op_construct)
 
-        return DVFA(starting_state=new_starting_state, name="({}_intersect_{})".format(A.name, B.name))
+        return DVFA(starting_state=new_starting_state, name="({}_intersect_{})".format(A.name, B.name))\
 
     @staticmethod
-    def _recursive_intersect(current_rule: tuple, op_construct):
+    def union(A, B):
+        """
+
+        :param A: DVFA
+        :param B: DVFA
+        :return: union DVFA
+        """
+        U1, U1_dict = DVFA.unwind(A)
+        U2, U2_dict = DVFA.unwind(B)
+
+        op_construct = BooleanOperatorConstruct(u1=U1, u1_dict=U1_dict, u2=U2, u2_dict=U2_dict, is_union=True)
+        const_matchings = op_construct.calculate_common_constants_matchings()
+        new_rule = (U1.starting_state, U2.starting_state, const_matchings)
+        new_starting_state = DVFA._boolean_operation(current_rule=new_rule, op_construct=op_construct)
+
+        return DVFA(starting_state=new_starting_state, name="({}_union_{})".format(A.name, B.name))
+
+    @staticmethod
+    def _boolean_operation(current_rule: tuple, op_construct:BooleanOperatorConstruct):
         existing_rule = op_construct.get_from_rules(current_rule)
         if existing_rule is not None:
             # We already traversed this state in Intersect(U1,U2), we should simply return it
@@ -191,7 +209,7 @@ class DVFA:
             state_1: State = current_rule[0]
             state_2: State = current_rule[1]
             current_matchings: frozenset = current_rule[2]
-            new_state = BooleanOperatorConstruct.new_state(s1=state_1, s2=state_2)
+            new_state = op_construct.new_state(s1=state_1, s2=state_2)
 
             # Insert it to the helper
             existing_rule = (state_1, state_2, current_matchings, new_state)
@@ -237,7 +255,7 @@ class DVFA:
             next_rule = (state_1.transition(new_var1), state_2.transition(new_var2), next_matchings)
 
             # create the next transition in the intersection/union construct using recursive function
-            next_state = DVFA._recursive_intersect(current_rule=next_rule, op_construct=op_construct)
+            next_state = DVFA._boolean_operation(current_rule=next_rule, op_construct=op_construct)
             next_sym = op_construct.new_var_name(var1=new_var1, var2=new_var2)
             new_state.add_transition(symbol=next_sym, state=next_state)
 
@@ -247,7 +265,7 @@ class DVFA:
                 next_rule = (state_1.transition(matching[0]), state_2.transition(matching[1]), current_matchings)
 
                 # create the next transition in the intersection/union construct using recursive function
-                next_state = DVFA._recursive_intersect(current_rule=next_rule, op_construct=op_construct)
+                next_state = DVFA._boolean_operation(current_rule=next_rule, op_construct=op_construct)
                 next_sym = op_construct.new_var_name(var1=matching[0], var2=matching[1])
                 new_state.add_transition(symbol=next_sym, state=next_state)
 
@@ -269,7 +287,7 @@ class DVFA:
 
                 # create the next set of matchings
                 next_rule = (state_1.transition(new_var1), state_2.transition(const), next_matchings)
-                next_state = DVFA._recursive_intersect(current_rule=next_rule, op_construct=op_construct)
+                next_state = DVFA._boolean_operation(current_rule=next_rule, op_construct=op_construct)
                 next_sym = op_construct.new_var_name(var1=new_var1, var2=const)
                 new_state.add_transition(symbol=next_sym, state=next_state)
 
@@ -283,7 +301,7 @@ class DVFA:
 
                 # create the next set of matchings
                 next_rule = (state_1.transition(const), state_2.transition(new_var2), next_matchings)
-                next_state = DVFA._recursive_intersect(current_rule=next_rule, op_construct=op_construct)
+                next_state = DVFA._boolean_operation(current_rule=next_rule, op_construct=op_construct)
                 next_sym = op_construct.new_var_name(var1=const, var2=new_var2)
                 new_state.add_transition(symbol=next_sym, state=next_state)
 

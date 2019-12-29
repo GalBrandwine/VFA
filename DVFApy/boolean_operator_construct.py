@@ -7,7 +7,7 @@ class BooleanOperatorConstruct:
     should not be exposed to the user.
     """
 
-    def __init__(self, u1, u1_dict: dict, u2, u2_dict: dict):
+    def __init__(self, u1, u1_dict: dict, u2, u2_dict: dict, is_union = False):
         # rule is a 4-tuple (state1,state2,{(x1,x2)},state12)
         # states_dict and rules_dict are symmetrical, inserting should happen simultaneously
         self.rules_dict = dict()
@@ -23,6 +23,9 @@ class BooleanOperatorConstruct:
         # u1_dict and u2_dict are the unwind dicts - for each state which symbols were read to reach it
         self._u1_dict = u1_dict
         self._u2_dict = u2_dict
+
+        # default mode is intersect, is_union is a flag which will change it to union mode
+        self._is_union = is_union
 
     @property
     def u1(self):
@@ -82,14 +85,15 @@ class BooleanOperatorConstruct:
             new_var = "{}_{}".format(var1, var2)
             return new_var
 
-    @staticmethod
-    def new_state_name(s1: State, s2: State):
+    def new_state_name(self, s1: State, s2: State):
         s1_name = s1.name
         s2_name = s2.name
         return "{}_{}".format(s1_name, s2_name)
 
-    @staticmethod
-    def new_state(s1: State, s2: State):
-        is_current_state_accepting = s1.is_accepting and s2.is_accepting
-        current_state_name = BooleanOperatorConstruct.new_state_name(s1=s1, s2=s2)
+    def new_state(self, s1: State, s2: State):
+        if self._is_union:
+            is_current_state_accepting = s1.is_accepting or s2.is_accepting
+        else:
+            is_current_state_accepting = s1.is_accepting and s2.is_accepting
+        current_state_name = self.new_state_name(s1=s1, s2=s2)
         return State(name=current_state_name, is_accepting=is_current_state_accepting)
