@@ -1,6 +1,7 @@
+import itertools
 import DVFApy as dvfa_tool
 from Utils import dvfa_generator
-
+from Utils import word_generator
 
 class TestDVFA:
     def test_unwind_3PAL(self):
@@ -222,21 +223,29 @@ class TestDVFA:
         # Setup
         dvfa_1_x_plus = dvfa_generator.create_1_x_plus_DVFA()
         dvfa_3pal = dvfa_generator.create_3PAL_DVFA()
+        dvfa_herring = dvfa_generator.create_herring_DVFA()
+        dvfa_longer_than_1 = dvfa_generator.create_word_longer_than_1()
+        dvfa_1_2 = dvfa_generator.create_1_2()
 
-        word1 = dvfa_tool.word.Word([1, 2, 2])
-        word2 = dvfa_tool.word.Word([1, 2, 1])
-        word3 = dvfa_tool.word.Word([1, 1, 1])
-        word4 = dvfa_tool.word.Word([1, 2])
-        word5 = dvfa_tool.word.Word([1, 2, 3, 2, 2, 1])
 
-        word_list = [word1, word2, word3, word4, word5]
+        dvfa_list = [dvfa_3pal, dvfa_1_2, dvfa_herring,dvfa_longer_than_1,dvfa_1_x_plus]
+        word_list = word_generator.get_words()
 
-        # Run
-        intersect_dvfa = dvfa_tool.dvfa.DVFA.intersect(dvfa_3pal, dvfa_1_x_plus)
+        for dvfa1, dvfa2 in itertools.product(dvfa_list, dvfa_list):
 
-        # Test
-        for word in word_list:
-            a1_run = dvfa_tool.run.Run(dvfa=dvfa_1_x_plus, word=word).run()
-            a2_run = dvfa_tool.run.Run(dvfa=dvfa_3pal, word=word).run()
-            intersect_run = dvfa_tool.run.Run(dvfa=intersect_dvfa, word=word).run()
-            assert intersect_run == (a1_run and a2_run)
+            # Run
+            try:
+                intersect_dvfa = dvfa_tool.dvfa.DVFA.intersect(dvfa1, dvfa2)
+            except KeyError:
+                print("intersection of automata {} and {} failed!".format(dvfa1.name, dvfa2.name))
+                assert False
+            for word in word_list:
+                a1_run = dvfa_tool.run.Run(dvfa=dvfa1, word=word).run()
+                a2_run = dvfa_tool.run.Run(dvfa=dvfa2, word=word).run()
+                try:
+                    intersect_run = dvfa_tool.run.Run(dvfa=intersect_dvfa, word=word).run()
+                    # Test
+                    assert intersect_run == (a1_run and a2_run), "result of run on word {} on intersect automata {} failed!".format(word.word, intersect_dvfa.name)
+                except KeyError:
+                    print("run of run on word {} on intersect automata {} failed!".format(word.word, intersect_dvfa.name))
+                    assert False

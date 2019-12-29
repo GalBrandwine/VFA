@@ -259,34 +259,32 @@ class DVFA:
                 unmatched_consts1.discard(matching[0])
                 unmatched_consts2.discard(matching[1])
 
-            if u1_new_vars:
-                for const in unmatched_consts2:
-                    # create the next transition in the intersection/union construct using recursive function
-                    # for new variables from u1 and consts from u2
+            for const in unmatched_consts2:
+                # create the next transition in the intersection/union construct using recursive function
+                # for new variables from u1 and consts from u2
 
-                    # create the next set of matchings
-                    new_matching = frozenset([(new_var1, const)])
-                    next_matchings = current_matchings.union(new_matching)
+                # create the next set of matchings
+                new_matching = frozenset([(new_var1, const)])
+                next_matchings = current_matchings.union(new_matching)
 
-                    # create the next set of matchings
-                    next_rule = (state_1.transition(new_var1), state_2.transition(const), next_matchings)
-                    next_state = DVFA._recursive_intersect(current_rule=next_rule, op_construct=op_construct)
-                    next_sym = op_construct.new_var_name(var1=new_var1, var2=const)
-                    new_state.add_transition(symbol=next_sym, state=next_state)
+                # create the next set of matchings
+                next_rule = (state_1.transition(new_var1), state_2.transition(const), next_matchings)
+                next_state = DVFA._recursive_intersect(current_rule=next_rule, op_construct=op_construct)
+                next_sym = op_construct.new_var_name(var1=new_var1, var2=const)
+                new_state.add_transition(symbol=next_sym, state=next_state)
 
-            if u2_new_vars:
-                for const in unmatched_consts1:
-                    # create the next transition in the intersection/union construct using recursive function
-                    # for new variables from u1 and consts from u2
+            for const in unmatched_consts1:
+                # create the next transition in the intersection/union construct using recursive function
+                # for new variables from u1 and consts from u2
 
-                    # create the next set of matchings
-                    new_matching = frozenset([(const, new_var2)])
-                    next_matchings = current_matchings.union(new_matching)
+                # create the next set of matchings
+                new_matching = frozenset([(const, new_var2)])
+                next_matchings = current_matchings.union(new_matching)
 
-                    # create the next set of matchings
-                    next_rule = (state_1.transition(const), state_2.transition(new_var2), next_matchings)
-                    next_state = DVFA._recursive_intersect(current_rule=next_rule, op_construct=op_construct)
-                    next_sym = op_construct.new_var_name(var1=const, var2=new_var2)
-                    new_state.add_transition(symbol=next_sym, state=next_state)
+                # create the next set of matchings
+                next_rule = (state_1.transition(const), state_2.transition(new_var2), next_matchings)
+                next_state = DVFA._recursive_intersect(current_rule=next_rule, op_construct=op_construct)
+                next_sym = op_construct.new_var_name(var1=const, var2=new_var2)
+                new_state.add_transition(symbol=next_sym, state=next_state)
 
         return new_state
