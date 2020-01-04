@@ -19,8 +19,8 @@ class TestDVFA:
         unwinded_dvfa, unwind_dict = dvfa_tool.dvfa.DVFA.unwind(dvfa)
 
         # test
-        assert len(unwinded_dvfa.var_set) == len(dvfa.var_set)
-        assert len(unwinded_dvfa.const_set) == len(dvfa.const_set)
+        assert len(unwinded_dvfa.var_set) == len(dvfa._var_set)
+        assert len(unwinded_dvfa.const_set) == len(dvfa._const_set)
 
         # Checking language of unwinded vs standard 3PAL against 5 words
         break_flag = False
@@ -88,8 +88,8 @@ class TestDVFA:
         unwinded_dvfa, unwind_dict = dvfa_tool.dvfa.DVFA.unwind(dvfa)
 
         # test
-        assert len(unwinded_dvfa.var_set) == len(dvfa.var_set)
-        assert len(unwinded_dvfa.const_set) == len(dvfa.const_set)
+        assert len(unwinded_dvfa.var_set) == len(dvfa._var_set)
+        assert len(unwinded_dvfa.const_set) == len(dvfa._const_set)
 
         # Checking language of unwinded vs standard 3PAL against 5 words
         break_flag = False
@@ -144,12 +144,12 @@ class TestDVFA:
 
     def test_map_properties(self):
         dvfa_3pal = dvfa_generator.create_3PAL_DVFA()
-        assert len(dvfa_3pal.const_set) is 0
-        assert len(dvfa_3pal.var_set) is 1
+        assert len(dvfa_3pal._const_set) is 0
+        assert len(dvfa_3pal._var_set) is 1
 
         dvfa_1_x_plus = dvfa_generator.create_1_x_plus_DVFA()
-        assert len(dvfa_1_x_plus.const_set) is 1
-        assert len(dvfa_1_x_plus.var_set) is 1
+        assert len(dvfa_1_x_plus._const_set) is 1
+        assert len(dvfa_1_x_plus._var_set) is 1
 
     def test_copy_3pal(self):
         dvfa_3pal = dvfa_generator.create_3PAL_DVFA()
@@ -187,7 +187,7 @@ class TestDVFA:
 
     def test_complement_3pal(self):
         dvfa_3pal = dvfa_generator.create_3PAL_DVFA()
-        dvfa_3pal_complement = dvfa_3pal.complement()
+        dvfa_3pal_complement = dvfa_tool.dvfa.DVFA.complement(dvfa_3pal)
 
         word1 = dvfa_tool.word.Word([1, 2, 2])
         word2 = dvfa_tool.word.Word([1, 2, 1])
@@ -289,7 +289,6 @@ class TestDVFA:
         dvfa_herring = dvfa_generator.create_herring_DVFA()
         dvfa_longer_than_1 = dvfa_generator.create_word_longer_than_1()
         dvfa_1_2 = dvfa_generator.create_1_2()
-
 
         dvfa_list = [dvfa_3pal, dvfa_1_2, dvfa_herring,dvfa_longer_than_1]
         word_list = word_generator.get_words()
