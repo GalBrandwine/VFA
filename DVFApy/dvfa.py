@@ -321,3 +321,21 @@ class DVFA:
                 new_state.add_transition(symbol=next_sym, state=next_state)
 
         return new_state
+
+    @staticmethod
+    def emptiness(A) -> bool:
+        """
+        Checks for DVFA A whether L(A) is empty or not
+        :param A: DVFA A
+        :return: True if language is empty, False if not
+        """
+        bfs_queue = [A.starting_state]
+        state_set = set(bfs_queue)
+        for state in bfs_queue:
+                for symbol, neighbor in state.transition_map.items():
+                    if state.is_accepting:
+                        return False
+                    if neighbor not in state_set:
+                        state_set.add(neighbor)
+                        bfs_queue.append(neighbor)
+        return True

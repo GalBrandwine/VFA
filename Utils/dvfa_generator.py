@@ -182,3 +182,15 @@ def create_herring_DVFA()-> dvfa_tool.dvfa.DVFA:
 
     dvfa = dvfa_tool.dvfa.DVFA(name="herring", starting_state=state1)
     return dvfa
+
+
+def create_sink_DVFA() -> dvfa_tool.dvfa.DVFA:
+    # Accepting nothing
+    # Create States
+    state1 = dvfa_tool.state.State("s1", False)
+
+    # Create Transitions
+    state1.add_transition(symbol="y", state=state1)
+
+    dvfa = dvfa_tool.dvfa.DVFA(name="sink", starting_state=state1)
+    return dvfa
