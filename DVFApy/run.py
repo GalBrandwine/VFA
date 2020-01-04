@@ -1,6 +1,7 @@
 import time
 from DVFApy.config import Config
 from DVFApy.dvfa import DVFA
+from DVFApy.exceptions import DvfaException
 from DVFApy.word import Word
 from DVFApy.state import State
 
@@ -104,7 +105,11 @@ class Run:
         return self._current_config
 
     def run(self) -> bool:
-        config = self._current_config
-        while not config.has_finished():
-            config = self.next_state()
-        return config.is_current_state_accepting()
+        try:
+            config = self._current_config
+            while not config.has_finished():
+                config = self.next_state()
+            return config.is_current_state_accepting()
+        except KeyError as e:
+            message = "run of run on word {} on intersect automata {} failed!".format(self._word, self._dvfa.name)
+            raise DvfaException(message, e)

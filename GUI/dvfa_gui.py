@@ -1,8 +1,8 @@
 import os
+from functools import wraps
+from timeit import default_timer as timer
 
 import PySimpleGUI as sg
-import re
-import hashlib
 
 import DVFApy
 from Utils import dvfa_generator
@@ -45,7 +45,7 @@ right_button_pane = [
     [sg.Button('Intersect into:', key='Intersect'),
      sg.Checkbox('{}'.format(NAME_DVFA1), key="Intersect_{}".format(NAME_DVFA1)),
      sg.Checkbox('{}'.format(NAME_DVFA2), key="Intersect_{}".format(NAME_DVFA2))],
-    [sg.Button('Union into:',key='Union'), sg.Checkbox('{}'.format(NAME_DVFA1), key="Union_{}".format(NAME_DVFA1)),
+    [sg.Button('Union into:', key='Union'), sg.Checkbox('{}'.format(NAME_DVFA1), key="Union_{}".format(NAME_DVFA1)),
      sg.Checkbox('{}'.format(NAME_DVFA2), key="Union_{}".format(NAME_DVFA2))],
 ]
 
@@ -85,6 +85,19 @@ layout = [
 ]
 
 window = sg.Window('DVFA tool', layout)
+
+
+def timeit_wrapper(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        start = timer()  # Alternatively, you can use time.process_time()
+        func_return_val = func(*args, **kwargs)
+        end = timer()
+        # print('Run time: {0:<10}.{1:<8} : {2:<8} sec'.format(func.__module__, func.__name__, end - start))
+        print('Run time: {0:<8} sec'.format(end - start))
+        return func_return_val
+
+    return wrapper
 
 
 def generate_popup():
@@ -141,6 +154,7 @@ def create_word(create_word_values: dict) -> None:
     print("Word generated = {}, length:{}".format(word.word, word.get_word_length()))
 
 
+@timeit_wrapper
 def run_on_word(event: str, values: dict):
     if isinstance(word, DVFApy.word.Word) is False:
         sg.popup_error("First create a WORD!", title=popup_error_title, )
@@ -253,6 +267,7 @@ def intersect(event, values):
         message = TOOMANYCHECKED
         sg.popup_error(message, title=popup_error_title)
 
+@timeit_wrapper
 def union(event, values):
     global dvfa1
     global dvfa2
@@ -294,6 +309,7 @@ def union(event, values):
         message = TOOMANYCHECKED
         sg.popup_error(message, title=popup_error_title)
 
+@timeit_wrapper
 def unwind(event):
     global dvfa1
     global dvfa2
@@ -317,7 +333,7 @@ def unwind(event):
         dvfa2, _ = DVFApy.dvfa.DVFA.unwind(dvfa2)
         print("unwinded: {}: {}".format(NAME_DVFA2, dvfa2.name))
 
-
+@timeit_wrapper
 def complement(event):
     global dvfa1
     global dvfa2
@@ -340,9 +356,6 @@ def complement(event):
         # Execute Logic
         dvfa2 = dvfa2.complement()
         print("Complement_: {}: {}".format(NAME_DVFA2, dvfa2.name))
-
-
-
 
 
 def event_handler(event, values):
@@ -372,7 +385,7 @@ def event_handler(event, values):
     # Save DVFA1
     if event == 'save_{}'.format(NAME_DVFA1):
         given_path = values['Save_{}_path'.format(NAME_DVFA1)]
-        save_dvfa(NAME_DVFA1,dvfa1, given_path)
+        save_dvfa(NAME_DVFA1, dvfa1, given_path)
 
     # Save DVFA2
     if event == 'save_{}'.format(NAME_DVFA2):

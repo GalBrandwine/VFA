@@ -15,6 +15,7 @@ def create_word_longer_than_1() -> dvfa_tool.dvfa.DVFA:
     dvfa = dvfa_tool.dvfa.DVFA(name="w>1", starting_state=state1)
     return dvfa
 
+
 def create_1_2() -> dvfa_tool.dvfa.DVFA:
     # Accepting the word "1, 2"
     # Create States
@@ -31,12 +32,12 @@ def create_1_2() -> dvfa_tool.dvfa.DVFA:
     state2.add_transition(symbol=2, state=state3)
     state2.add_transition(symbol=1, state=sink)
 
-    state1.add_transition(symbol="y",state=sink)
-    state2.add_transition(symbol="y",state=sink)
+    state1.add_transition(symbol="y", state=sink)
+    state2.add_transition(symbol="y", state=sink)
 
-    state3.add_transition(symbol=1,state=sink)
-    state3.add_transition(symbol=2,state=sink)
-    state3.add_transition(symbol="y",state=sink)
+    state3.add_transition(symbol=1, state=sink)
+    state3.add_transition(symbol=2, state=sink)
+    state3.add_transition(symbol="y", state=sink)
 
     sink.add_transition(symbol="y", state=sink)
     sink.add_transition(symbol=1, state=sink)
@@ -45,6 +46,7 @@ def create_1_2() -> dvfa_tool.dvfa.DVFA:
     dvfa = dvfa_tool.dvfa.DVFA(name="1->2", starting_state=state1)
 
     return dvfa
+
 
 def create_3PAL_DVFA() -> dvfa_tool.dvfa.DVFA:
     # Accepting palindromes in length of 3
@@ -112,7 +114,8 @@ def create_1_x_plus_DVFA() -> dvfa_tool.dvfa.DVFA:
     dvfa = dvfa_tool.dvfa.DVFA(name="1_X_plus", starting_state=state1)
     return dvfa
 
-def create_herring_DVFA()-> dvfa_tool.dvfa.DVFA:
+
+def create_herring_DVFA() -> dvfa_tool.dvfa.DVFA:
     # Accepting 1 2 3 , afterwards x_1 and x_2 are optional
 
     # Create States
@@ -162,10 +165,10 @@ def create_herring_DVFA()-> dvfa_tool.dvfa.DVFA:
     state6.add_transition(state=sink3, symbol="x2")
     state6.add_transition(state=sink3, symbol="y")
 
-    sink1.add_transition(state=sink1,symbol=1)
-    sink1.add_transition(state=sink1,symbol=2)
-    sink1.add_transition(state=sink1,symbol=3)
-    sink1.add_transition(state=sink1,symbol="y")
+    sink1.add_transition(state=sink1, symbol=1)
+    sink1.add_transition(state=sink1, symbol=2)
+    sink1.add_transition(state=sink1, symbol=3)
+    sink1.add_transition(state=sink1, symbol="y")
 
     sink2.add_transition(state=sink2, symbol=1)
     sink2.add_transition(state=sink2, symbol=2)

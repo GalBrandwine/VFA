@@ -313,3 +313,59 @@ class TestDVFA:
                     print("run of run on word {} on intersect automata {} failed!".format(word.word, union_dvfa.name))
                     assert False
         pass
+
+    def test_big_union_exceptions(self):
+        # Setup
+
+        # Create States for a broken DVFA
+        state1 = dvfa_tool.state.State("s1", False)
+        state2 = dvfa_tool.state.State("s2", False)
+        state3 = dvfa_tool.state.State("s3", True)
+
+        sink = dvfa_tool.state.State("sink", True)
+
+        # Create Transitions
+        state1.add_transition(symbol=1, state=state2)
+        state1.add_transition(symbol=2, state=sink)
+
+        state2.add_transition(symbol=2, state=state3)
+        state2.add_transition(symbol=1, state=sink)
+
+        # state1.add_transition(symbol="y", state=sink)
+        state2.add_transition(symbol="y", state=sink)
+
+        state3.add_transition(symbol=1, state=sink)
+        state3.add_transition(symbol=2, state=sink)
+        state3.add_transition(symbol="y", state=sink)
+
+        sink.add_transition(symbol="y", state=sink)
+        sink.add_transition(symbol=1, state=sink)
+        sink.add_transition(symbol=2, state=sink)
+
+        dvfa_broken = dvfa_tool.dvfa.DVFA(name="broken_dvfa", starting_state=state1)
+
+        dvfa_1_2 = dvfa_generator.create_1_2()
+
+        dvfa_list = [dvfa_1_2]
+        word_list = word_generator.get_words()
+        word_list.append(dvfa_tool.word.Word([4]))
+        union_dvfa: dvfa_tool.DVFA = dvfa_broken
+        for dvfa in dvfa_list:
+
+            # Run
+            try:
+                union_dvfa = dvfa_tool.dvfa.DVFA.union(dvfa, union_dvfa)
+            except dvfa_tool.exceptions.DvfaException as e:
+                print(e)
+                # assert False
+            for word in word_list:
+                a1_run = dvfa_tool.run.Run(dvfa=dvfa, word=word).run()
+                a2_run = dvfa_tool.run.Run(dvfa=union_dvfa, word=word).run()
+                try:
+                    intersect_run = dvfa_tool.run.Run(dvfa=union_dvfa, word=word).run()
+                    # Test
+                    assert intersect_run == (a1_run or a2_run), "result of run on word {} on union automata {} failed!".format(word.word, union_dvfa.name)
+                except dvfa_tool.exceptions.DvfaException as e:
+                    print(e)
+                    assert False
+        pass

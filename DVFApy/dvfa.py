@@ -1,5 +1,8 @@
+from DVFApy.exceptions import DvfaException
 from DVFApy.state import State
 from DVFApy.boolean_operator_construct import BooleanOperatorConstruct
+
+# from Utils.my_timer import timeit_wrapper
 
 
 class DVFA:
@@ -59,7 +62,7 @@ class DVFA:
         bfs_queue = [A._starting_state]
         visited_states = dict()
         visited_states[A.starting_state] = State(name=A.starting_state.name,
-                                                    is_accepting=A.starting_state.is_accepting)
+                                                 is_accepting=A.starting_state.is_accepting)
 
         for state in bfs_queue:
             for symbol, neighbor in state.transition_map.items():
@@ -80,7 +83,7 @@ class DVFA:
         bfs_queue = [A._starting_state]
         visited_states = dict()
         visited_states[A.starting_state] = State(name=A.starting_state.name,
-                                                    is_accepting=(not A.starting_state.is_accepting))
+                                                 is_accepting=(not A.starting_state.is_accepting))
 
         for state in bfs_queue:
             for symbol, neighbor in state.transition_map.items():
@@ -193,9 +196,10 @@ class DVFA:
         new_rule = (U1.starting_state, U2.starting_state, const_matchings)
         new_starting_state = DVFA._boolean_operation(current_rule=new_rule, op_construct=op_construct)
 
-        return DVFA(starting_state=new_starting_state, name="({}_intersect_{})".format(A.name, B.name))\
-
+        return DVFA(starting_state=new_starting_state, name="({}_intersect_{})".format(A.name, B.name))
+    
     @staticmethod
+    # @timeit_wrapper
     def union(A, B):
         """
 
@@ -203,18 +207,22 @@ class DVFA:
         :param B: DVFA
         :return: union DVFA
         """
-        U1, U1_dict = DVFA.unwind(A)
-        U2, U2_dict = DVFA.unwind(B)
+        try:
+            U1, U1_dict = DVFA.unwind(A)
+            U2, U2_dict = DVFA.unwind(B)
 
-        op_construct = BooleanOperatorConstruct(u1=U1, u1_dict=U1_dict, u2=U2, u2_dict=U2_dict, is_union=True)
-        const_matchings = op_construct.calculate_common_constants_matchings()
-        new_rule = (U1.starting_state, U2.starting_state, const_matchings)
-        new_starting_state = DVFA._boolean_operation(current_rule=new_rule, op_construct=op_construct)
+            op_construct = BooleanOperatorConstruct(u1=U1, u1_dict=U1_dict, u2=U2, u2_dict=U2_dict, is_union=True)
+            const_matchings = op_construct.calculate_common_constants_matchings()
+            new_rule = (U1.starting_state, U2.starting_state, const_matchings)
+            new_starting_state = DVFA._boolean_operation(current_rule=new_rule, op_construct=op_construct)
 
-        return DVFA(starting_state=new_starting_state, name="({}_union_{})".format(A.name, B.name))
+            return DVFA(starting_state=new_starting_state, name="({}_union_{})".format(A.name, B.name))
+        except KeyError as e:
+            message = "Union of automata {} and {} failed!".format(A.name, B.name)
+            raise DvfaException(message, e)
 
     @staticmethod
-    def _boolean_operation(current_rule: tuple, op_construct:BooleanOperatorConstruct):
+    def _boolean_operation(current_rule: tuple, op_construct: BooleanOperatorConstruct):
         existing_rule = op_construct.get_from_rules(current_rule)
         if existing_rule is not None:
             # We already traversed this state in Intersect(U1,U2), we should simply return it
