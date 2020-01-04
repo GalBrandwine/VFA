@@ -3,3 +3,4 @@ from DVFApy import state
 from DVFApy import dvfa
 from DVFApy import word
 from DVFApy import config
+from DVFApy import exceptions
