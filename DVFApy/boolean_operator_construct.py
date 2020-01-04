@@ -1,7 +1,7 @@
 from DVFApy.state import State
 
 
-class BooleanOperatorConstruct:
+class _BooleanOperatorConstruct:
     """
     This class is aggregating several data structures that are required for intersect and union operations, it
     should not be exposed to the user.

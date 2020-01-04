@@ -3,6 +3,7 @@ import DVFApy as dvfa_tool
 from Utils import dvfa_generator
 from Utils import word_generator
 
+
 class TestDVFA:
     def test_unwind_3PAL(self):
         """Test for unwinding functionality."""
@@ -153,7 +154,7 @@ class TestDVFA:
 
     def test_copy_3pal(self):
         dvfa_3pal = dvfa_generator.create_3PAL_DVFA()
-        dvfa_3pal_copy = dvfa_3pal.copy()
+        dvfa_3pal_copy = dvfa_tool.dvfa.DVFA.copy(dvfa_3pal)
 
         word1 = dvfa_tool.word.Word([1, 2, 2])
         word2 = dvfa_tool.word.Word([1, 2, 1])
@@ -170,7 +171,7 @@ class TestDVFA:
 
     def test_copy_1_x_plus(self):
         dvfa_1_x_plus = dvfa_generator.create_1_x_plus_DVFA()
-        dvfa_1_x_plus_copy = dvfa_1_x_plus.copy()
+        dvfa_1_x_plus_copy = dvfa_tool.dvfa.DVFA.copy(dvfa_1_x_plus)
 
         word1 = dvfa_tool.word.Word([1, 2, 2])
         word2 = dvfa_tool.word.Word([1, 2, 1, 2])
@@ -204,7 +205,7 @@ class TestDVFA:
 
     def test_complement_1_x_plus(self):
         dvfa_1_x_plus = dvfa_generator.create_1_x_plus_DVFA()
-        dvfa_1_x_plus_complement = dvfa_1_x_plus.complement()
+        dvfa_1_x_plus_complement = dvfa_tool.dvfa.DVFA.complement(dvfa_1_x_plus)
 
         word1 = dvfa_tool.word.Word([1, 2, 2])
         word2 = dvfa_tool.word.Word([1, 2, 1, 2])
@@ -226,7 +227,6 @@ class TestDVFA:
         dvfa_herring = dvfa_generator.create_herring_DVFA()
         dvfa_longer_than_1 = dvfa_generator.create_word_longer_than_1()
         dvfa_1_2 = dvfa_generator.create_1_2()
-
 
         dvfa_list = [dvfa_3pal, dvfa_1_2, dvfa_herring,dvfa_longer_than_1,dvfa_1_x_plus]
         word_list = word_generator.get_words()
@@ -250,7 +250,6 @@ class TestDVFA:
                     print("run of run on word {} on intersect automata {} failed!".format(word.word, intersect_dvfa.name))
                     assert False
 
-
     def test_union(self):
         # Setup
         dvfa_1_x_plus = dvfa_generator.create_1_x_plus_DVFA()
@@ -258,7 +257,6 @@ class TestDVFA:
         dvfa_herring = dvfa_generator.create_herring_DVFA()
         dvfa_longer_than_1 = dvfa_generator.create_word_longer_than_1()
         dvfa_1_2 = dvfa_generator.create_1_2()
-
 
         dvfa_list = [dvfa_3pal, dvfa_1_2, dvfa_herring,dvfa_longer_than_1,dvfa_1_x_plus]
         word_list = word_generator.get_words()
@@ -312,60 +310,47 @@ class TestDVFA:
                 except KeyError:
                     print("run of run on word {} on intersect automata {} failed!".format(word.word, union_dvfa.name))
                     assert False
-        pass
 
-    def test_big_union_exceptions(self):
+    def test_emptiness_false(self):
         # Setup
+        dvfa = dvfa_generator.create_herring_DVFA()
 
-        # Create States for a broken DVFA
-        state1 = dvfa_tool.state.State("s1", False)
-        state2 = dvfa_tool.state.State("s2", False)
-        state3 = dvfa_tool.state.State("s3", True)
+        # Run
+        is_empty = dvfa_tool.dvfa.DVFA.emptiness(dvfa)
 
-        sink = dvfa_tool.state.State("sink", True)
+        # Test
+        assert not is_empty
 
-        # Create Transitions
-        state1.add_transition(symbol=1, state=state2)
-        state1.add_transition(symbol=2, state=sink)
+    def test_emptiness_true(self):
+        # Setup
+        dvfa = dvfa_generator.create_sink_DVFA()
 
-        state2.add_transition(symbol=2, state=state3)
-        state2.add_transition(symbol=1, state=sink)
+        # Run
+        is_empty = dvfa_tool.dvfa.DVFA.emptiness(dvfa)
 
-        # state1.add_transition(symbol="y", state=sink)
-        state2.add_transition(symbol="y", state=sink)
+        # Test
+        assert is_empty
 
-        state3.add_transition(symbol=1, state=sink)
-        state3.add_transition(symbol=2, state=sink)
-        state3.add_transition(symbol="y", state=sink)
+    def test_emptiness_with_intersect(self):
+        # Setup
+        dvfa1 = dvfa_generator.create_3PAL_DVFA()
+        dvfa2 = dvfa_tool.dvfa.DVFA.complement(dvfa1)
+        empty_dvfa = dvfa_tool.dvfa.DVFA.intersect(dvfa1, dvfa2)
 
-        sink.add_transition(symbol="y", state=sink)
-        sink.add_transition(symbol=1, state=sink)
-        sink.add_transition(symbol=2, state=sink)
+        # Run
+        is_empty = dvfa_tool.dvfa.DVFA.emptiness(empty_dvfa)
 
-        dvfa_broken = dvfa_tool.dvfa.DVFA(name="broken_dvfa", starting_state=state1)
+        # Test
+        assert is_empty
 
-        dvfa_1_2 = dvfa_generator.create_1_2()
+    def test_emptiness_with_union(self):
+        # Setup
+        dvfa1 = dvfa_generator.create_3PAL_DVFA()
+        dvfa2 = dvfa_tool.dvfa.DVFA.complement(dvfa1)
+        union_dvfa = dvfa_tool.dvfa.DVFA.union(dvfa1, dvfa2)
 
-        dvfa_list = [dvfa_1_2]
-        word_list = word_generator.get_words()
-        word_list.append(dvfa_tool.word.Word([4]))
-        union_dvfa: dvfa_tool.DVFA = dvfa_broken
-        for dvfa in dvfa_list:
+        # Run
+        is_empty = dvfa_tool.dvfa.DVFA.emptiness(union_dvfa)
 
-            # Run
-            try:
-                union_dvfa = dvfa_tool.dvfa.DVFA.union(dvfa, union_dvfa)
-            except dvfa_tool.exceptions.DvfaException as e:
-                print(e)
-                # assert False
-            for word in word_list:
-                a1_run = dvfa_tool.run.Run(dvfa=dvfa, word=word).run()
-                a2_run = dvfa_tool.run.Run(dvfa=union_dvfa, word=word).run()
-                try:
-                    intersect_run = dvfa_tool.run.Run(dvfa=union_dvfa, word=word).run()
-                    # Test
-                    assert intersect_run == (a1_run or a2_run), "result of run on word {} on union automata {} failed!".format(word.word, union_dvfa.name)
-                except dvfa_tool.exceptions.DvfaException as e:
-                    print(e)
-                    assert False
-        pass
+        # Test
+        assert not is_empty
