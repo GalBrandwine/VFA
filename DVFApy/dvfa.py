@@ -1,4 +1,5 @@
 from DVFApy.state import State
+from DVFApy.exceptions import DvfaException
 from DVFApy.boolean_operator_construct import _BooleanOperatorConstruct
 
 
@@ -63,7 +64,7 @@ class DVFA:
                     bfs_queue.append(neighbor)
 
     @staticmethod
-    def _recursive_boolean_operation(current_rule: tuple, op_construct:_BooleanOperatorConstruct):
+    def _recursive_boolean_operation(current_rule: tuple, op_construct: _BooleanOperatorConstruct):
         """
         A single iteration of intersection/union, each iteration is defined by a single "rule", this function is not
         exposed to the user and is being called as part of both intersect and union
@@ -281,7 +282,7 @@ class DVFA:
         bfs_queue = [A._starting_state]
         visited_states = dict()
         visited_states[A.starting_state] = State(name=A.starting_state.name,
-                                                    is_accepting=A.starting_state.is_accepting)
+                                                 is_accepting=A.starting_state.is_accepting)
 
         for state in bfs_queue:
             for symbol, neighbor in state.transition_map.items():
@@ -309,16 +310,40 @@ class DVFA:
 
         U, unwind_dict = DVFA.unwind(A)
         bfs_queue = [U.starting_state]
-        state_set = set(bfs_queue)
-        for state in bfs_queue:
+        is_deterministic = True
+        try:
+            for state in bfs_queue:
+                # I) For each state, every constant exits that state.
+                keys = state.transition_map.keys()
+                constants = U.const_set
+                res = constants - keys
+                if len(res) > 0:
+                    message = "In {}, not all constant exits that state".format(state.name)
+                    is_deterministic = False
+                    raise DvfaException(message, None)
 
+                # III) Once a free variable is read, no new bound variables are created, this can be known by unwinding.
+                bound_vars = unwind_dict[state]
+                if 'y' in bound_vars:
+                    keys = state.transition_map.keys() - constants - bound_vars
+                    if len(keys) > 0:
+                        message = "In {}, A new bound variable was found after reading 'y'".format(state.name)
+                        is_deterministic = False
+                        raise DvfaException(message, None)
+                else:
+                    # II) Each state either introduce one new bound variable or free variable "y", but not both.
+                    bound_vars = unwind_dict[state]  # Filled with bounded_variables because we Unwinded it.
+                    keys = state.transition_map.keys() - constants - bound_vars
+                    if len(keys) is not 1:
+                        message = "In {}, len keys: {}, but should be 1, each state can only introduce one new variable".format(state.name,len(keys))
+                        is_deterministic = False
+                        raise DvfaException(message, None)
 
-
-            for symbol, neighbor in state.transition_map.items():
-                if neighbor not in state_set:
-                    state_set.add(neighbor)
-                    bfs_queue.append(neighbor)
-        return True
+                for symbol, neighbor in state.transition_map.items():
+                    if neighbor not in bfs_queue:
+                        bfs_queue.append(neighbor)
+        finally:
+            return is_deterministic
 
     @staticmethod
     def emptiness(A) -> bool:
@@ -330,12 +355,12 @@ class DVFA:
         bfs_queue = [A.starting_state]
         state_set = set(bfs_queue)
         for state in bfs_queue:
-                for symbol, neighbor in state.transition_map.items():
-                    if state.is_accepting:
-                        return False
-                    if neighbor not in state_set:
-                        state_set.add(neighbor)
-                        bfs_queue.append(neighbor)
+            for symbol, neighbor in state.transition_map.items():
+                if state.is_accepting:
+                    return False
+                if neighbor not in state_set:
+                    state_set.add(neighbor)
+                    bfs_queue.append(neighbor)
         return True
 
     @staticmethod
@@ -354,8 +379,8 @@ class DVFA:
         new_rule = (U1.starting_state, U2.starting_state, const_matchings)
         new_starting_state = DVFA._recursive_boolean_operation(current_rule=new_rule, op_construct=op_construct)
 
-        return DVFA(starting_state=new_starting_state, name="({}_intersect_{})".format(A.name, B.name))\
-
+        return DVFA(starting_state=new_starting_state, name="({}_intersect_{})".format(A.name, B.name)) \
+ \
     @staticmethod
     def unwind(A):
         """
@@ -388,4 +413,3 @@ class DVFA:
         new_starting_state = DVFA._recursive_boolean_operation(current_rule=new_rule, op_construct=op_construct)
 
         return DVFA(starting_state=new_starting_state, name="({}_union_{})".format(A.name, B.name))
-

@@ -354,3 +354,29 @@ class TestDVFA:
 
         # Test
         assert not is_empty
+
+    def test_determinism(self):
+        # Setup
+        dvfa1 = dvfa_generator.create_3PAL_DVFA()
+
+        # Run
+        is_det = dvfa_tool.dvfa.DVFA.determinism(dvfa1)
+
+        # Test
+        assert is_det
+
+    def test_NOT_determinism_test_1(self):
+        """
+            I) For each state, every constant exits that state.
+            II) Each state either introduce one new bound variable or free variable "y", but not both.
+            III) Once a free variable is read, no new bound variables are created, this can be known by unwinding.
+        """
+        # Setup
+        dvfa1 = dvfa_generator.create_3PAL_DVFA()
+
+        # Run
+        is_det = dvfa_tool.dvfa.DVFA.determinism(dvfa1)
+
+        # Test
+        assert is_det
+
