@@ -8,6 +8,7 @@ class DVFA:
     def __init__(self, name: str = None, starting_state: State = None):
         self.name = name
         self._starting_state: State = starting_state
+        self.state_set: set = set()
         self.var_set: set = set()
         self.const_set: set = set()
         self._map_properties()
@@ -22,7 +23,7 @@ class DVFA:
         # in order to fill DVFA's variables set, and constants set.
 
         bfs_queue = [self._starting_state]
-        visited_states = set(bfs_queue)
+        self.state_set.add(self._starting_state)
 
         for state in bfs_queue:
             for symbol, neighbor in state.transition_map.items():
@@ -32,8 +33,8 @@ class DVFA:
                         self.var_set.add(symbol)
                 else:
                     self.const_set.add(symbol)
-                if neighbor not in visited_states:
-                    visited_states.add(neighbor)
+                if neighbor not in self.state_set:
+                    self.state_set.add(neighbor)
                     bfs_queue.append(neighbor)
 
     def copy(self):
