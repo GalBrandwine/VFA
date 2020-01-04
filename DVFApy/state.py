@@ -1,4 +1,8 @@
 class State:
+    """
+    Instance of State, this class is muteable, however changing state parameters once they are
+    part of a DVFA is not supported.
+    """
     def __init__(self, name: str = None, is_accepting: bool = False) -> object:
         """
 

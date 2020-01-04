@@ -347,10 +347,10 @@ class TestDVFA:
         # Setup
         dvfa1 = dvfa_generator.create_3PAL_DVFA()
         dvfa2 = dvfa_tool.dvfa.DVFA.complement(dvfa1)
-        empty_dvfa = dvfa_tool.dvfa.DVFA.union(dvfa1, dvfa2)
+        union_dvfa = dvfa_tool.dvfa.DVFA.union(dvfa1, dvfa2)
 
         # Run
-        is_empty = dvfa_tool.dvfa.DVFA.emptiness(empty_dvfa)
+        is_empty = dvfa_tool.dvfa.DVFA.emptiness(union_dvfa)
 
         # Test
         assert not is_empty
