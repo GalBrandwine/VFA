@@ -228,7 +228,7 @@ class TestDVFA:
         dvfa_longer_than_1 = dvfa_generator.create_word_longer_than_1()
         dvfa_1_2 = dvfa_generator.create_1_2()
 
-        dvfa_list = [dvfa_3pal, dvfa_1_2, dvfa_herring,dvfa_longer_than_1,dvfa_1_x_plus]
+        dvfa_list = [dvfa_3pal, dvfa_1_2, dvfa_herring, dvfa_longer_than_1, dvfa_1_x_plus]
         word_list = word_generator.get_words()
 
         for dvfa1, dvfa2 in itertools.product(dvfa_list, dvfa_list):
@@ -245,9 +245,12 @@ class TestDVFA:
                 try:
                     intersect_run = dvfa_tool.run.Run(dvfa=intersect_dvfa, word=word).run()
                     # Test
-                    assert intersect_run == (a1_run and a2_run), "result of run on word {} on intersect automata {} failed!".format(word.word, intersect_dvfa.name)
+                    assert intersect_run == (
+                            a1_run and a2_run), "result of run on word {} on intersect automata {} failed!".format(
+                        word.word, intersect_dvfa.name)
                 except KeyError:
-                    print("run of run on word {} on intersect automata {} failed!".format(word.word, intersect_dvfa.name))
+                    print(
+                        "run of run on word {} on intersect automata {} failed!".format(word.word, intersect_dvfa.name))
                     assert False
 
     def test_union(self):
@@ -258,7 +261,7 @@ class TestDVFA:
         dvfa_longer_than_1 = dvfa_generator.create_word_longer_than_1()
         dvfa_1_2 = dvfa_generator.create_1_2()
 
-        dvfa_list = [dvfa_3pal, dvfa_1_2, dvfa_herring,dvfa_longer_than_1,dvfa_1_x_plus]
+        dvfa_list = [dvfa_3pal, dvfa_1_2, dvfa_herring, dvfa_longer_than_1, dvfa_1_x_plus]
         word_list = word_generator.get_words()
 
         for dvfa1, dvfa2 in itertools.product(dvfa_list, dvfa_list):
@@ -275,7 +278,9 @@ class TestDVFA:
                 try:
                     intersect_run = dvfa_tool.run.Run(dvfa=union_dvfa, word=word).run()
                     # Test
-                    assert intersect_run == (a1_run or a2_run), "result of run on word {} on union automata {} failed!".format(word.word, union_dvfa.name)
+                    assert intersect_run == (
+                            a1_run or a2_run), "result of run on word {} on union automata {} failed!".format(
+                        word.word, union_dvfa.name)
                 except KeyError:
                     print("run of run on word {} on intersect automata {} failed!".format(word.word, union_dvfa.name))
                     assert False
@@ -288,7 +293,7 @@ class TestDVFA:
         dvfa_longer_than_1 = dvfa_generator.create_word_longer_than_1()
         dvfa_1_2 = dvfa_generator.create_1_2()
 
-        dvfa_list = [dvfa_3pal, dvfa_1_2, dvfa_herring,dvfa_longer_than_1]
+        dvfa_list = [dvfa_3pal, dvfa_1_2, dvfa_herring, dvfa_longer_than_1]
         word_list = word_generator.get_words()
 
         union_dvfa: dvfa_tool.DVFA = dvfa_1_x_plus
@@ -306,7 +311,9 @@ class TestDVFA:
                 try:
                     intersect_run = dvfa_tool.run.Run(dvfa=union_dvfa, word=word).run()
                     # Test
-                    assert intersect_run == (a1_run or a2_run), "result of run on word {} on union automata {} failed!".format(word.word, union_dvfa.name)
+                    assert intersect_run == (
+                            a1_run or a2_run), "result of run on word {} on union automata {} failed!".format(
+                        word.word, union_dvfa.name)
                 except KeyError:
                     print("run of run on word {} on intersect automata {} failed!".format(word.word, union_dvfa.name))
                     assert False
@@ -372,11 +379,60 @@ class TestDVFA:
             III) Once a free variable is read, no new bound variables are created, this can be known by unwinding.
         """
         # Setup
-        dvfa1 = dvfa_generator.create_3PAL_DVFA()
+        state_1 = dvfa_tool.state.State(name="s1", is_accepting=False)
+        state_2 = dvfa_tool.state.State(name="s2", is_accepting=False)
+        state_3 = dvfa_tool.state.State(name="s3", is_accepting=True)
+
+        # First test constrain.
+        state_1.add_transition("x1", state_2)
+        state_1.add_transition(1, state_3)
+
+        dvfa1 = dvfa_tool.dvfa.DVFA(starting_state=state_1)
 
         # Run
         is_det = dvfa_tool.dvfa.DVFA.determinism(dvfa1)
 
         # Test
-        assert is_det
+        assert is_det is False
 
+    def test_NOT_determinism_test_2(self):
+        """
+            II) Each state either introduce one new bound variable or free variable "y", but not both.
+            III) Once a free variable is read, no new bound variables are created, this can be known by unwinding.
+        """
+        # Setup
+        state_1 = dvfa_tool.state.State(name="s1", is_accepting=False)
+        state_2 = dvfa_tool.state.State(name="s2", is_accepting=False)
+
+        # Seccond test constrain.
+        state_1.add_transition("x1", state_2)
+        state_1.add_transition("y", state_2)
+
+        dvfa1 = dvfa_tool.dvfa.DVFA(starting_state=state_1)
+
+        # Run
+        is_det = dvfa_tool.dvfa.DVFA.determinism(dvfa1)
+
+        # Test
+        assert is_det is False
+
+    def test_NOT_determinism_test_3(self):
+        """
+            III) Once a free variable is read, no new bound variables are created, this can be known by unwinding.
+        """
+        # Setup
+        state_1 = dvfa_tool.state.State(name="s1", is_accepting=False)
+        state_2 = dvfa_tool.state.State(name="s2", is_accepting=False)
+        state_3 = dvfa_tool.state.State(name="s3", is_accepting=False)
+        # Third test constrain.
+
+        state_1.add_transition("y", state_2)
+        state_2.add_transition("x1", state_2)
+
+        dvfa1 = dvfa_tool.dvfa.DVFA(starting_state=state_1)
+
+        # Run
+        is_det = dvfa_tool.dvfa.DVFA.determinism(dvfa1)
+
+        # Test
+        assert is_det is False

@@ -379,8 +379,8 @@ class DVFA:
         new_rule = (U1.starting_state, U2.starting_state, const_matchings)
         new_starting_state = DVFA._recursive_boolean_operation(current_rule=new_rule, op_construct=op_construct)
 
-        return DVFA(starting_state=new_starting_state, name="({}_intersect_{})".format(A.name, B.name)) \
- \
+        return DVFA(starting_state=new_starting_state, name="({}_intersect_{})".format(A.name, B.name))
+
     @staticmethod
     def unwind(A):
         """

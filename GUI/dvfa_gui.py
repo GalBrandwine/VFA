@@ -12,7 +12,6 @@ import Utils as utils
 
 # Gui config
 sg.ChangeLookAndFeel('GreenTan')
-POPUPERRORTITLE = "Bad kitten!"
 
 # Global variables
 NAME_DVFA1 = "DVFA1"
