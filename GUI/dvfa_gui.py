@@ -265,12 +265,12 @@ def intersect(event, values):
     # Execute Logic
     if values["Intersect_{}".format(NAME_DVFA1)] is True:
         dvfa1 = DVFApy.dvfa.DVFA.intersect(dvfa1, dvfa2)
-        message = "Intersected into {}: {}".format(NAME_DVFA1, dvfa1.name)
+        message = "Intersected into {}: {}".format(NAME_DVFA1, dvfa1.print())
         logger.log_print(message)
         return
     if values["Intersect_{}".format(NAME_DVFA2)] is True:
         dvfa2 = DVFApy.dvfa.DVFA.intersect(dvfa1, dvfa2)
-        message = "Intersected into {}: {}".format(NAME_DVFA2, dvfa2.name)
+        message = "Intersected into {}: {}".format(NAME_DVFA2, dvfa2.print())
         logger.log_print(message)
         return
     else:
@@ -308,12 +308,12 @@ def union(event, values):
     # Execute Logic
     if values["Union_{}".format(NAME_DVFA1)] is True:
         dvfa1 = DVFApy.dvfa.DVFA.union(dvfa1, dvfa2)
-        message = "United into {}: {}".format(NAME_DVFA1, dvfa1.name)
+        message = "United into {}: {}".format(NAME_DVFA1, dvfa1.print())
         logger.log_print(message)
         return
     if values["Union_{}".format(NAME_DVFA2)] is True:
         dvfa2 = DVFApy.dvfa.DVFA.union(dvfa1, dvfa2)
-        message = "United into {}: {}".format(NAME_DVFA2, dvfa2.name)
+        message = "United into {}: {}".format(NAME_DVFA2, dvfa2.print())
         logger.log_print(message)
         return
     else:
@@ -334,7 +334,7 @@ def unwind(event):
             return
         # Execute Logic
         dvfa1, _ = DVFApy.dvfa.DVFA.unwind(dvfa1)
-        logger.log_print("unwinded: {}: {}".format(NAME_DVFA1, dvfa1.name))
+        logger.log_print("Unwinded: {}: {}".format(NAME_DVFA1, dvfa1.print()))
     elif event == "Unwind_{}".format(NAME_DVFA2):
         # Check logic:
         if dvfa2 is None:
@@ -343,7 +343,7 @@ def unwind(event):
             return
         # Execute Logic
         dvfa2, _ = DVFApy.dvfa.DVFA.unwind(dvfa2)
-        logger.log_print("unwinded: {}: {}".format(NAME_DVFA2, dvfa2.name))
+        logger.log_print("Unwinded: {}: {}".format(NAME_DVFA2, dvfa2.print()))
 
 
 @timeit_wrapper
@@ -359,7 +359,7 @@ def complement(event):
             return
         # Execute Logic
         dvfa1 = DVFApy.dvfa.DVFA.complement(dvfa1)
-        logger.log_print("Complement_: {}: {}".format(NAME_DVFA1, dvfa1.name))
+        logger.log_print("Complement: {}: {}".format(NAME_DVFA1, dvfa1.print()))
     elif event == "Complement_{}".format(NAME_DVFA2):
         # Check logic:
         if dvfa2 is None:
@@ -368,7 +368,7 @@ def complement(event):
             return
         # Execute Logic
         dvfa2 = DVFApy.dvfa.DVFA.complement(dvfa2)
-        logger.log_print("Complement_: {}: {}".format(NAME_DVFA2, dvfa2.name))
+        logger.log_print("Complement: {}: {}".format(NAME_DVFA2, dvfa2.print()))
 
 
 def event_handler(event, values):
@@ -382,7 +382,7 @@ def event_handler(event, values):
         if gen_event == "Ok":
             dvfa1 = generate_dvfa(gen_event, gen_values)
             if isinstance(dvfa1, DVFApy.dvfa.DVFA):
-                logger.log_print(" {} Generated: {}".format(NAME_DVFA1, dvfa1.name))
+                logger.log_print(" {} Generated: {}".format(NAME_DVFA1, dvfa1.print()))
             else:
                 logger.log_print("{} not generated!".format(NAME_DVFA1))
 
@@ -391,7 +391,8 @@ def event_handler(event, values):
         if gen_event == "Ok":
             dvfa2 = generate_dvfa(gen_event, gen_values)
             if isinstance(dvfa2, DVFApy.dvfa.DVFA):
-                logger.log_print(" {} Generated: {}".format(NAME_DVFA2, dvfa2.name))
+                logger.log_print(" {} Generated: {}".format(NAME_DVFA2, dvfa2.print()))
+
             else:
                 logger.log_print("{} not generated!".format(NAME_DVFA2))
 
@@ -409,11 +410,13 @@ def event_handler(event, values):
     if event == 'Load_{}'.format(NAME_DVFA1):
         given_path = values['Load_{}_path'.format(NAME_DVFA1)]
         dvfa1 = load_dvfa(given_path)
+        logger.log_print(" {} Loaded: {}".format(NAME_DVFA1, dvfa1.print()))
 
     # Load DVFA2
     if event == 'Load_{}'.format(NAME_DVFA2):
         given_path = values['Load_{}_path'.format(NAME_DVFA2)]
         dvfa2 = load_dvfa(given_path)
+        logger.log_print(" {} Loaded: {}".format(NAME_DVFA2, dvfa2.print()))
 
     # Create word button pressed
     if event == "Create_WORD":
@@ -454,8 +457,7 @@ def event_handler(event, values):
 
 while True:  # The Event Loop
     event, values = window.read()
-    logger.log_print(event, values)  # debug
-    logger.log_print('\n')
+    # logger.log_print(event, values)  # debug
 
     if event in (None, 'Exit', 'Cancel'):
         break

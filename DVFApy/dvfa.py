@@ -1,3 +1,14 @@
+# from __future__ import print_function
+# # This must be the first statement before other statements.
+# # You may only put a quoted or triple quoted string,
+# # Python comments, other future statements, or blank lines before the __future__ line.
+#
+# try:
+#     import __builtin__
+# except ImportError:
+#     # Python 3
+#     import builtins as __builtin__
+
 from DVFApy.state import State
 from DVFApy.exceptions import DvfaException
 from DVFApy.boolean_operator_construct import _BooleanOperatorConstruct
@@ -24,6 +35,10 @@ class DVFA:
         self._const_set: set = set()
 
         self._map_properties()
+
+    def print(self) -> str:
+        """My custom print() function."""
+        return "{name}. number of states = {size}".format(name=self.name, size=len(self.state_set))
 
     @property
     def starting_state(self) -> State:
@@ -335,7 +350,8 @@ class DVFA:
                     bound_vars = unwind_dict[state]  # Filled with bounded_variables because we Unwinded it.
                     keys = state.transition_map.keys() - constants - bound_vars
                     if len(keys) is not 1:
-                        message = "In {}, len keys: {}, but should be 1, each state can only introduce one new variable".format(state.name,len(keys))
+                        message = "In {}, len keys: {}, but should be 1, each state can only introduce one new variable".format(
+                            state.name, len(keys))
                         is_deterministic = False
                         raise DvfaException(message, None)
 
