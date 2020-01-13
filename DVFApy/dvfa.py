@@ -318,7 +318,7 @@ class DVFA:
             III) Once a free variable is read, no new bound variables are created, this can be known by unwinding.
         Make note that by default, DVFApy does not check dvfa for non-determinism and leaves it to the user.
 
-        :param A: DVFA A
+        :param A: DVFA
         :return: True if A is deterministic, False if not
         """
 
@@ -381,10 +381,11 @@ class DVFA:
     @staticmethod
     def intersect(A, B):
         """
-
+        Intersection is a boolean operator between two DVFA that calculates a DVFA which accepts the
+        intersection of the languages accepted by two DVFAs, in other words: L(A union B) = L(A) intersect L(B)
         :param A: DVFA
         :param B: DVFA
-        :return: intersected DVFA
+        :return: Intersected DVFA
         """
         U1, U1_dict = DVFA.unwind(A)
         U2, U2_dict = DVFA.unwind(B)
@@ -399,11 +400,12 @@ class DVFA:
     @staticmethod
     def unwind(A):
         """
-        Unwinding operation on A will return an unwinded form of A, which is
-        :param A: a DVFA
-        :return: (unwinded_DVFA, map[key=state,value=[symbols]])
+        Unwinding operation on A will return an unwinded form of A, which is a new DVFA where each state "remembers"
+        the bound and free variables read so far and L(A) = L(unwind(A)).
+        :param A: DVFA
+        :return:(unwinded_DVFA, map[key=state,value=[symbols]])
         """
-        # Starting point, get first state, as
+
         u_states_dict = dict()
         u_result_dict = dict()
         u_state = DVFA._recursive_unwinding(A, current_tuple=None, u_states_dict=u_states_dict, is_first=True)
@@ -414,10 +416,11 @@ class DVFA:
     @staticmethod
     def union(A, B):
         """
-
+        Union is a boolean operator between two DVFA that calculates a DVFA which accepts the
+        union of the languages accepted by two DVFAs, in other words: L(A union B) = L(A) union L(B).
         :param A: DVFA
         :param B: DVFA
-        :return: union DVFA
+        :return: Union DVFA
         """
         U1, U1_dict = DVFA.unwind(A)
         U2, U2_dict = DVFA.unwind(B)

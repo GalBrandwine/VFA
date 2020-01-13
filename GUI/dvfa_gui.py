@@ -25,10 +25,11 @@ POPUPERRORTITLE = "Bad kitten!"
 UNCECKED = "MUST CHECK SOMETHING"
 TOOMANYCHECKED = "CHECK ONLY ONE"
 NOTGENERATED = "Generate {} first!"
-
+SMALLBUTTONSIZE = (10,1)
+LARGEBUTTONSIZE = (12,1)
 word_pane = [
     [sg.Text('WORD')],
-    [sg.Button('Create', key="Create_WORD")],
+    [sg.Button('Create', key="Create_WORD",size=SMALLBUTTONSIZE)],
     # Stupid invisible line for triggering an EVENT, after leading a file.
     [sg.Input(key='Load_WORD', enable_events=True, visible=False)],
     [sg.FileBrowse("Load", key='Load_WORD_path', file_types=(("CSV Files", "*.csv"),), target='Load_WORD')],
@@ -38,41 +39,41 @@ word_pane = [
 
 right_button_pane = [
     [sg.Text('DVFA actions:')],
-    [sg.Button('Run on:', key='Run'), sg.Checkbox('{}'.format(NAME_DVFA1), key="run_{}".format(NAME_DVFA1)),
+    [sg.Button('Run on:', key='Run',size=LARGEBUTTONSIZE), sg.Checkbox('{}'.format(NAME_DVFA1), key="run_{}".format(NAME_DVFA1)),
      sg.Checkbox('{}'.format(NAME_DVFA2), key="run_{}".format(NAME_DVFA2))],
-    [sg.Button('Intersect into:', key='Intersect'),
+    [sg.Button('Intersect into:', key='Intersect',size=LARGEBUTTONSIZE),
      sg.Checkbox('{}'.format(NAME_DVFA1), key="Intersect_{}".format(NAME_DVFA1)),
      sg.Checkbox('{}'.format(NAME_DVFA2), key="Intersect_{}".format(NAME_DVFA2))],
-    [sg.Button('Union into:', key='Union'), sg.Checkbox('{}'.format(NAME_DVFA1), key="Union_{}".format(NAME_DVFA1)),
+    [sg.Button('Union into:', key='Union',size=LARGEBUTTONSIZE), sg.Checkbox('{}'.format(NAME_DVFA1), key="Union_{}".format(NAME_DVFA1)),
      sg.Checkbox('{}'.format(NAME_DVFA2), key="Union_{}".format(NAME_DVFA2))],
 ]
 
 left_dvfa_column = [
     [sg.Text('{}'.format(NAME_DVFA1))],
-    [sg.Button('Generate', key="Generate_{}".format(NAME_DVFA1))],
+    [sg.Button('Generate', key="Generate_{}".format(NAME_DVFA1),size=SMALLBUTTONSIZE)],
     [sg.Input(key='Load_{}'.format(NAME_DVFA1), enable_events=True, visible=False)],
-    [sg.FileBrowse("Load", key="Load_{}_path".format(NAME_DVFA1), file_types=(("PICKLE Files", "*.pickle"),),
+    [sg.FileBrowse("Load", key="Load_{}_path".format(NAME_DVFA1),size=SMALLBUTTONSIZE, file_types=(("PICKLE Files", "*.pickle"),),
                    target='Load_{}'.format(NAME_DVFA1))],
     [sg.Input(key='save_{}'.format(NAME_DVFA1), enable_events=True, visible=False)],
-    [sg.FileSaveAs(key='Save_{}_path'.format(NAME_DVFA1), file_types=(("PICKLE Files", "*.pickle"),),
+    [sg.FileSaveAs(key='Save_{}_path'.format(NAME_DVFA1),size=SMALLBUTTONSIZE, file_types=(("PICKLE Files", "*.pickle"),),
                    target='save_{}'.format(NAME_DVFA1))],
     [sg.Text('Actions:')],
-    [sg.Button("Unwind", key='Unwind_{}'.format(NAME_DVFA1))],
-    [sg.Button("Complement", key='Complement_{}'.format(NAME_DVFA1))],
+    [sg.Button("Unwind", key='Unwind_{}'.format(NAME_DVFA1),size=SMALLBUTTONSIZE)],
+    [sg.Button("Complement", key='Complement_{}'.format(NAME_DVFA1),size=SMALLBUTTONSIZE)],
 ]
 
 right_dvfa_column = [
     [sg.Text('{}'.format(NAME_DVFA2))],
-    [sg.Button('Generate', key="Generate_{}".format(NAME_DVFA2))],
-    [sg.Input(key='Load_{}'.format(NAME_DVFA2), enable_events=True, visible=False)],
+    [sg.Button('Generate',size=SMALLBUTTONSIZE, key="Generate_{}".format(NAME_DVFA2))],
+    [sg.Input(key='Load_{}'.format(NAME_DVFA2),size=SMALLBUTTONSIZE, enable_events=True, visible=False)],
     [sg.FileBrowse("Load", key="Load_{}_path".format(NAME_DVFA2), file_types=(("PICKLE Files", "*.pickle"),),
                    target='Load_{}'.format(NAME_DVFA2))],
     [sg.Input(key='save_{}'.format(NAME_DVFA2), enable_events=True, visible=False)],
     [sg.FileSaveAs(key='Save_{}_path'.format(NAME_DVFA2), file_types=(("PICKLE Files", "*.pickle"),),
                    target='save_{}'.format(NAME_DVFA2))],
     [sg.Text('Actions:')],
-    [sg.Button("Unwind", key='Unwind_{}'.format(NAME_DVFA2))],
-    [sg.Button("Complement", key='Complement_{}'.format(NAME_DVFA2))],
+    [sg.Button("Unwind", key='Unwind_{}'.format(NAME_DVFA2),size=SMALLBUTTONSIZE)],
+    [sg.Button("Complement", key='Complement_{}'.format(NAME_DVFA2),size=SMALLBUTTONSIZE)],
 ]
 
 layout = [

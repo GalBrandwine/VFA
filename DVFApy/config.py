@@ -3,18 +3,14 @@ from DVFApy.word import Word
 
 
 class Config:
-    """Config is a RUN snapshot.
+    """
+    Config is a run snapshot.
 
-    With config, we can know run state,
-    for debugging purposes.
+    With config, we can know run state for debugging purposes.
     """
 
     def __init__(self, current_state: State, remaining_word: Word, bound_variables: dict,
                  y_was_read: bool = False) -> object:
-        """
-
-        :rtype: object
-        """
         self._current_state = current_state
         self._bound_variables = bound_variables
         self._remaining_word = remaining_word  # the letters that stil needed to be read
