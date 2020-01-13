@@ -398,7 +398,6 @@ class TestDVFA:
     def test_NOT_determinism_test_2(self):
         """
             II) Each state either introduce one new bound variable or free variable "y", but not both.
-            III) Once a free variable is read, no new bound variables are created, this can be known by unwinding.
         """
         # Setup
         state_1 = dvfa_tool.state.State(name="s1", is_accepting=False)
