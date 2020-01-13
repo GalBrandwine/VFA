@@ -10,10 +10,12 @@ def save(word: Word, path: str, word_name: str):
     else:
         numpy.savetxt("{}/{}".format(path, word_name), one_line, delimiter=",")
 
+
 # Test
 if __name__ == "__main__":
     import os
-    word = Word([1,2,3])
+
+    word = Word([1, 2, 3])
     cwd = os.getcwd()
     print(cwd)
-    save(word,cwd, "temp_word")
+    save(word, cwd, "temp_word")

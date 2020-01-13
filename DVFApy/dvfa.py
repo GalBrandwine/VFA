@@ -270,7 +270,7 @@ class DVFA:
                                                      is_accepting=(not neighbor.is_accepting))
                     bfs_queue.append(neighbor)
                 visited_states[state].add_transition(symbol=symbol, state=visited_states[neighbor])
-        return DVFA(starting_state=visited_states[A.starting_state])
+        return DVFA(starting_state=visited_states[A.starting_state], name="{}_complement".format(A.name))
 
     @staticmethod
     def copy(A):
@@ -306,7 +306,6 @@ class DVFA:
         :param A: DVFA A
         :return: True if A is deterministic, False if not
         """
-        # todo: Gal
 
         U, unwind_dict = DVFA.unwind(A)
         bfs_queue = [U.starting_state]
@@ -379,7 +378,7 @@ class DVFA:
         new_rule = (U1.starting_state, U2.starting_state, const_matchings)
         new_starting_state = DVFA._recursive_boolean_operation(current_rule=new_rule, op_construct=op_construct)
 
-        return DVFA(starting_state=new_starting_state, name="({}_intersect_{})".format(A.name, B.name))
+        return DVFA(starting_state=new_starting_state, name="{}_intersect_{}".format(A.name, B.name))
 
     @staticmethod
     def unwind(A):
@@ -412,4 +411,4 @@ class DVFA:
         new_rule = (U1.starting_state, U2.starting_state, const_matchings)
         new_starting_state = DVFA._recursive_boolean_operation(current_rule=new_rule, op_construct=op_construct)
 
-        return DVFA(starting_state=new_starting_state, name="({}_union_{})".format(A.name, B.name))
+        return DVFA(starting_state=new_starting_state, name="{}_union_{}".format(A.name, B.name))

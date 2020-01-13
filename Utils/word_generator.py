@@ -1,7 +1,39 @@
+import numpy as np
+
 import DVFApy as dvfa_tool
 
 
-def get_words():
+def palin_generator(n_input: int) -> list:
+    """Generates all palindromes with lengt of n_input.
+
+    WARNING: super inefficient!
+    """
+    max_len = 1000000
+    str_len = len(str(max_len))
+
+    if n_input >= str_len:
+        message = "Input must be smaller than: {}".format(len(str(max_len)))
+        raise Exception(message)
+
+    palindromes = []
+
+    for count in range(max_len):
+        n = str(count)
+        if n == n[::-1]:
+            palindromes.append(n)
+
+    return [pal for pal in palindromes if (len(pal) == n_input)]
+
+
+def get_pal3_word() -> dvfa_tool.word.Word:
+    first_letter = np.random.randint(500)
+    second_letter = np.random.randint(500)
+    third_letter = first_letter
+    letters = [first_letter, second_letter, third_letter]
+    return dvfa_tool.word.Word(letters)
+
+
+def get_words() -> dvfa_tool.word.Word:
     arr_list = [
         [1, 2, 1],
         [1, 1, 1],
