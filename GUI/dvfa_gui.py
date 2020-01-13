@@ -151,7 +151,7 @@ def generate_dvfa(event: str, values: dict) -> DVFApy.dvfa.DVFA:
 
 def create_word_popup() -> (str, dict):
     word_popup = [
-        [sg.Text('Type new word:'), sg.InputText()],
+        [sg.Text('Type new Word:'), sg.InputText()],
         [sg.Ok(), sg.Cancel()]
     ]
 
