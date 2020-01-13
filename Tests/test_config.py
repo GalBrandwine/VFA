@@ -8,7 +8,7 @@ class TestConfig:
         # setup
 
         # create stuff for new config:
-        temp_state = State("Alons_first_state", True)
+        temp_state = State("s1", True)
         temp_word = Word([1, 123, 44])
         temp_bound_variable = dict()
 
@@ -21,7 +21,7 @@ class TestConfig:
     def test_bound_variables_map(self):
         # setup
 
-        temp_state = State("Alons_first_state", True)
+        temp_state = State("s1", True)
         temp_word = Word([1, 123, 44])
         temp_bound_variable = dict()
 
@@ -38,7 +38,7 @@ class TestConfig:
     def test_is_current_state_accepting(self):
         # setup
         # create stuff for new config:
-        temp_state = State("Alons_first_state", True)
+        temp_state = State("s1", True)
         temp_word = Word([1, 123, 44])
         temp_bound_variable = dict()
 
@@ -54,7 +54,7 @@ class TestConfig:
 
         # setup
         # create stuff for new config:
-        temp_state = State("Alons_first_state", True)
+        temp_state = State("s1", True)
         temp_remain_word = Word([1, 123, 44])
         temp_bound_variable = dict()
 
@@ -67,7 +67,7 @@ class TestConfig:
     def test_remaining_word(self):
         # setup
         # create stuff for new config:
-        temp_state = State("Alons_first_state", True)
+        temp_state = State("s1", True)
         temp_remain_word = Word([1, 123, 44])
         temp_bound_variable = dict()
 
@@ -80,7 +80,7 @@ class TestConfig:
     def test_y_war_read(self):
         # setup
         # create stuff for new config:
-        temp_state = State("Alons_first_state", True)
+        temp_state = State("s1", True)
         temp_remain_word = Word([1, 123, 44])
         temp_bound_variable = dict()
 

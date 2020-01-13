@@ -372,7 +372,7 @@ class TestDVFA:
         # Test
         assert is_det
 
-    def test_NOT_determinism_test_1(self):
+    def test_not_determinism_test_1(self):
         """
             I) For each state, every constant exits that state.
             II) Each state either introduce one new bound variable or free variable "y", but not both.
@@ -395,7 +395,7 @@ class TestDVFA:
         # Test
         assert is_det is False
 
-    def test_NOT_determinism_test_2(self):
+    def test_not_determinism_test_2(self):
         """
             II) Each state either introduce one new bound variable or free variable "y", but not both.
         """
@@ -415,7 +415,7 @@ class TestDVFA:
         # Test
         assert is_det is False
 
-    def test_NOT_determinism_test_3(self):
+    def test_not_determinism_test_3(self):
         """
             III) Once a free variable is read, no new bound variables are created, this can be known by unwinding.
         """

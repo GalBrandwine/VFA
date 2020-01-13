@@ -5,12 +5,14 @@ def create_word_longer_than_1() -> dvfa_tool.dvfa.DVFA:
     # Accepting all word that are longer than 1
     # Create States
     state1 = dvfa_tool.state.State("s1", False)
-    state2 = dvfa_tool.state.State("s2", True)
+    state2 = dvfa_tool.state.State("s2", False)
+    state3 = dvfa_tool.state.State("s3", True)
 
     # Create Transitions
-    state1.add_transition(symbol="x1", state=state2)
-    state2.add_transition(symbol="x1", state=state2)
-    state2.add_transition(symbol="y", state=state2)
+    state1.add_transition(symbol="y", state=state2)
+    state2.add_transition(symbol="y", state=state3)
+    state3.add_transition(symbol="y", state=state3)
+
 
     dvfa = dvfa_tool.dvfa.DVFA(name="w>1", starting_state=state1)
     return dvfa

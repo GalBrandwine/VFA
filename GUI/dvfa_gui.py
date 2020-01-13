@@ -11,7 +11,7 @@ import Utils as utils
 
 
 # Gui config
-sg.ChangeLookAndFeel('GreenTan')
+sg.ChangeLookAndFeel('DefaultNoMoreNagging')
 
 # Global variables
 NAME_DVFA1 = "DVFA1"
@@ -21,65 +21,78 @@ dvfa2: DVFApy.dvfa.DVFA = None
 word: DVFApy.word.Word = None
 
 # Error Messages
-POPUPERRORTITLE = "Bad kitten!"
-UNCECKED = "MUST CHECK SOMETHING"
-TOOMANYCHECKED = "CHECK ONLY ONE"
+POPUPERRORTITLE = "Bad Kitty!"
+UNCECKED = "Check at least one option!"
+TOOMANYCHECKED = "Check only one option!"
 NOTGENERATED = "Generate {} first!"
 
+# Button Sizes
+SMALLBUTTONSIZE = (10, 1)
+LARGEBUTTONSIZE = (12, 1)
+
 word_pane = [
-    [sg.Text('WORD')],
-    [sg.Button('Create', key="Create_WORD")],
+    [sg.Button('Create', key="Create_WORD", size=SMALLBUTTONSIZE)],
     # Stupid invisible line for triggering an EVENT, after leading a file.
     [sg.Input(key='Load_WORD', enable_events=True, visible=False)],
-    [sg.FileBrowse("Load", key='Load_WORD_path', file_types=(("CSV Files", "*.csv"),), target='Load_WORD')],
+    [sg.FileBrowse("Load", key='Load_WORD_path', size=SMALLBUTTONSIZE, file_types=(("CSV Files", "*.csv"),), target='Load_WORD')],
     [sg.Input(key='Save_WORD', enable_events=True, visible=False)],
-    [sg.FileSaveAs(key='Save_WORD_path', file_types=(("CSV Files", "*.csv"),), target='Save_WORD')]
+    [sg.FileSaveAs(key='Save_WORD_path', size=SMALLBUTTONSIZE, file_types=(("CSV Files", "*.csv"),), target='Save_WORD')],
+    [sg.Text(size=SMALLBUTTONSIZE)],
+    [sg.Text(size=SMALLBUTTONSIZE)],
+    [sg.Text(size=SMALLBUTTONSIZE)]
 ]
 
 right_button_pane = [
-    [sg.Text('DVFA actions:')],
-    [sg.Button('Run on:', key='Run'), sg.Checkbox('{}'.format(NAME_DVFA1), key="run_{}".format(NAME_DVFA1)),
+    [sg.Button('Run on:', key='Run',size=LARGEBUTTONSIZE), sg.Checkbox('{}'.format(NAME_DVFA1), key="run_{}".format(NAME_DVFA1)),
      sg.Checkbox('{}'.format(NAME_DVFA2), key="run_{}".format(NAME_DVFA2))],
-    [sg.Button('Intersect into:', key='Intersect'),
+    [sg.Button('Intersect into:', key='Intersect',size=LARGEBUTTONSIZE),
      sg.Checkbox('{}'.format(NAME_DVFA1), key="Intersect_{}".format(NAME_DVFA1)),
      sg.Checkbox('{}'.format(NAME_DVFA2), key="Intersect_{}".format(NAME_DVFA2))],
-    [sg.Button('Union into:', key='Union'), sg.Checkbox('{}'.format(NAME_DVFA1), key="Union_{}".format(NAME_DVFA1)),
+    [sg.Button('Union into:', key='Union',size=LARGEBUTTONSIZE), sg.Checkbox('{}'.format(NAME_DVFA1), key="Union_{}".format(NAME_DVFA1)),
      sg.Checkbox('{}'.format(NAME_DVFA2), key="Union_{}".format(NAME_DVFA2))],
+    [sg.Text(size=SMALLBUTTONSIZE)],
+    [sg.Text(size=SMALLBUTTONSIZE)],
+    [sg.Text(size=SMALLBUTTONSIZE)],
+
 ]
 
 left_dvfa_column = [
-    [sg.Text('{}'.format(NAME_DVFA1))],
-    [sg.Button('Generate', key="Generate_{}".format(NAME_DVFA1))],
+    [sg.Button('Generate', key="Generate_{}".format(NAME_DVFA1), size=SMALLBUTTONSIZE)],
     [sg.Input(key='Load_{}'.format(NAME_DVFA1), enable_events=True, visible=False)],
-    [sg.FileBrowse("Load", key="Load_{}_path".format(NAME_DVFA1), file_types=(("PICKLE Files", "*.pickle"),),
+    [sg.FileBrowse("Load", key="Load_{}_path".format(NAME_DVFA1), size=SMALLBUTTONSIZE, file_types=(("PICKLE Files", "*.pickle"),),
                    target='Load_{}'.format(NAME_DVFA1))],
     [sg.Input(key='save_{}'.format(NAME_DVFA1), enable_events=True, visible=False)],
-    [sg.FileSaveAs(key='Save_{}_path'.format(NAME_DVFA1), file_types=(("PICKLE Files", "*.pickle"),),
+    [sg.FileSaveAs(key='Save_{}_path'.format(NAME_DVFA1), size=SMALLBUTTONSIZE, file_types=(("PICKLE Files", "*.pickle"),),
                    target='save_{}'.format(NAME_DVFA1))],
     [sg.Text('Actions:')],
-    [sg.Button("Unwind", key='Unwind_{}'.format(NAME_DVFA1))],
-    [sg.Button("Complement", key='Complement_{}'.format(NAME_DVFA1))],
+    [sg.Button("Unwind", key='Unwind_{}'.format(NAME_DVFA1),size=SMALLBUTTONSIZE)],
+    [sg.Button("Complement", key='Complement_{}'.format(NAME_DVFA1),size=SMALLBUTTONSIZE)]
 ]
 
 right_dvfa_column = [
-    [sg.Text('{}'.format(NAME_DVFA2))],
-    [sg.Button('Generate', key="Generate_{}".format(NAME_DVFA2))],
+    [sg.Button('Generate',size=SMALLBUTTONSIZE, key="Generate_{}".format(NAME_DVFA2))],
     [sg.Input(key='Load_{}'.format(NAME_DVFA2), enable_events=True, visible=False)],
-    [sg.FileBrowse("Load", key="Load_{}_path".format(NAME_DVFA2), file_types=(("PICKLE Files", "*.pickle"),),
+    [sg.FileBrowse("Load", key="Load_{}_path".format(NAME_DVFA2),size=SMALLBUTTONSIZE ,file_types=(("PICKLE Files", "*.pickle"),),
                    target='Load_{}'.format(NAME_DVFA2))],
     [sg.Input(key='save_{}'.format(NAME_DVFA2), enable_events=True, visible=False)],
-    [sg.FileSaveAs(key='Save_{}_path'.format(NAME_DVFA2), file_types=(("PICKLE Files", "*.pickle"),),
+    [sg.FileSaveAs(key='Save_{}_path'.format(NAME_DVFA2), size=SMALLBUTTONSIZE, file_types=(("PICKLE Files", "*.pickle"),),
                    target='save_{}'.format(NAME_DVFA2))],
     [sg.Text('Actions:')],
-    [sg.Button("Unwind", key='Unwind_{}'.format(NAME_DVFA2))],
-    [sg.Button("Complement", key='Complement_{}'.format(NAME_DVFA2))],
+    [sg.Button("Unwind", key='Unwind_{}'.format(NAME_DVFA2), size=SMALLBUTTONSIZE)],
+    [sg.Button("Complement", key='Complement_{}'.format(NAME_DVFA2), size=SMALLBUTTONSIZE)]
 ]
 
 layout = [
-    [sg.Column(left_dvfa_column, background_color='#d3dfda'), sg.Column(right_dvfa_column, background_color='#d3dfda'),
-     sg.Column(word_pane, background_color='#d3dfda')],
-    [sg.Output(size=(80, 15)), sg.Column(right_button_pane, background_color='#d3dfda')],
-    [sg.Exit()]
+    [
+    sg.Frame(NAME_DVFA1, left_dvfa_column),
+    sg.Frame(NAME_DVFA2, right_dvfa_column),
+    sg.Frame('Word',word_pane),
+    sg.Frame('DVFA Actions',right_button_pane)
+    ],
+    [
+    sg.Output(size=(100, 15)),
+    ],
+    [sg.Text("DVFA tool by Alon Ben-yosef & Gal Brandwine " + chr(169))]
 ]
 
 window = sg.Window('DVFA tool', layout)
@@ -103,7 +116,7 @@ def generate_popup():
     generate_vdfa = [
         [sg.Checkbox('3PAL', key="3PAL"), sg.Checkbox('1_X_plus', key="1_X_plus")],
         [sg.Checkbox('WordLongerThanOne', key="WordLongerThanOne"), sg.Checkbox('1_2', key="1_2")],
-        [sg.Checkbox('herring', key="herring")],
+        [sg.Checkbox('Herring', key="herring")],
         [sg.Ok(), sg.Cancel()]
     ]
     sg_generate_popup = sg.Window('DVFA generator', generate_vdfa)
@@ -138,7 +151,7 @@ def generate_dvfa(event: str, values: dict) -> DVFApy.dvfa.DVFA:
 
 def create_word_popup() -> (str, dict):
     word_popup = [
-        [sg.Text('Type new WORD:'), sg.InputText()],
+        [sg.Text('Type new Word:'), sg.InputText()],
         [sg.Ok(), sg.Cancel()]
     ]
 
