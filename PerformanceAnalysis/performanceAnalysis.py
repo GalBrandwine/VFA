@@ -29,7 +29,7 @@ def analyse_run(run: DVFApy.run.Run) -> bool:
     return run.run()
 
 
-# Performence Analysis
+# Performance Analysis
 if __name__ == "__main__":
     dvfa_name = []
     num_of_states = []
