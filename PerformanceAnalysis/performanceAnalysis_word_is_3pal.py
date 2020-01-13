@@ -38,6 +38,7 @@ if __name__ == "__main__":
     run_time_arr = []
 
     word = word_generator.get_pal3_word()
+    graph_bars = []
 
     # Performance Test 1
     pal_3 = dvfa_generator.create_3PAL_DVFA()
@@ -47,8 +48,11 @@ if __name__ == "__main__":
     run = DVFApy.run.Run(pal_3, word)
 
     # word_length.append(word.get_word_length())
-    accepted_arr.append(analyse_run(run))
+    accepted = analyse_run(run)
+    accepted_arr.append(accepted)
     run_time_arr.append(run_time)
+    graph_bars.append(
+        go.Bar(x=[len(pal_3.state_set)], y=[run_time], name=pal_3.name, text="accepted: {}".format(accepted)))
 
     # Performance Test 2
     longer_than_one = dvfa_generator.create_word_longer_than_1()
@@ -56,10 +60,11 @@ if __name__ == "__main__":
     num_of_states.append(len(longer_than_one.state_set))
 
     run = DVFApy.run.Run(longer_than_one, word)
-
-    # word_length.append(word.get_word_length())
-    accepted_arr.append(analyse_run(run))
+    accepted = analyse_run(run)
+    accepted_arr.append(accepted)
     run_time_arr.append(run_time)
+    graph_bars.append(go.Bar(x=[len(longer_than_one.state_set)], y=[run_time], name=longer_than_one.name,
+                             text="accepted: {}".format(accepted)))
 
     # Performance Test 3
     longer_than_one_join_pal_3 = DVFApy.dvfa.DVFA.union(longer_than_one, pal_3)
@@ -67,10 +72,12 @@ if __name__ == "__main__":
     num_of_states.append(len(longer_than_one_join_pal_3.state_set))
 
     run = DVFApy.run.Run(longer_than_one_join_pal_3, word)
-
-    # word_length.append(word.get_word_length())
-    accepted_arr.append(analyse_run(run))
+    accepted = analyse_run(run)
+    accepted_arr.append(accepted)
     run_time_arr.append(run_time)
+    graph_bars.append(
+        go.Bar(x=[len(longer_than_one_join_pal_3.state_set)], y=[run_time], name=longer_than_one_join_pal_3.name,
+               text="accepted: {}".format(accepted)))
 
     # Performance Test 4
     C_longer_than_one_join_pal_3 = DVFApy.dvfa.DVFA.complement(longer_than_one_join_pal_3)
@@ -78,30 +85,25 @@ if __name__ == "__main__":
     num_of_states.append(len(C_longer_than_one_join_pal_3.state_set))
 
     run = DVFApy.run.Run(C_longer_than_one_join_pal_3, word)
-    # word_length.append(word.get_word_length())
-
-    accepted_arr.append(analyse_run(run))
+    accepted = analyse_run(run)
+    accepted_arr.append(accepted)
     run_time_arr.append(run_time)
-
-    desired_pal_len = 6
-    palindromes = word_generator.palin_generator(desired_pal_len)  # Create all palindromes with desired length.
-    # Split a palindrome to its letters
-    a_palindrome = [letter for letter in palindromes[9]]  # some palindrome
-    # Create the Word representing this palindrome
-    a_palindrome = DVFApy.word.Word([int(d) for d in a_palindrome])
+    graph_bars.append(
+        go.Bar(x=[len(C_longer_than_one_join_pal_3.state_set)], y=[run_time], name=C_longer_than_one_join_pal_3.name,
+               text="accepted: {}".format(accepted)))
 
     # Graph preparations
-    bar = go.Bar(x=num_of_states, y=run_time_arr, text=dvfa_name)
-
     layout = go.Layout(
         title=go.layout.Title(text="Runtime analysis, on word length: {}".format(word.get_word_length())),
+
         xaxis_title="Number of states",
         yaxis_title="Run time",
+
     )
 
     fig = go.Figure(
-        data=[bar],
+        data=graph_bars,
         layout=layout
     )
-
+    fig.update_layout(barmode='group')
     fig.show()
