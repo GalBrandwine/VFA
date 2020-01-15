@@ -1,4 +1,6 @@
 import itertools
+import timeit
+
 import DVFApy as dvfa_tool
 from Utils import dvfa_generator
 from Utils import word_generator
@@ -435,3 +437,42 @@ class TestDVFA:
 
         # Test
         assert is_det is False
+
+    def test_scaleable(self):
+        dvfa1 = dvfa_generator.create_symmetrical_i_n_minus_i(n = 3, i = 2)
+        dvfa2 = dvfa_generator.create_symmetrical_i_n_minus_i(n = 5, i = 3)
+
+        word1 = dvfa_tool.word.Word([1, 2, 1])
+        word2 = dvfa_tool.word.Word([3, 5, 7, 2, 2, 3])
+
+        res1 = dvfa_tool.run.Run(dvfa=dvfa1,word=word1).run()
+        res2 = dvfa_tool.run.Run(dvfa=dvfa2,word=word2).run()
+
+        assert res1
+        assert res2
+        assert dvfa_tool.dvfa.DVFA.determinism(dvfa1)
+        assert dvfa_tool.dvfa.DVFA.determinism(dvfa2)
+
+    def test_scaleable_union(self):
+        dvfa1 = dvfa_generator.create_symmetrical_i_n_minus_i(n=3, i=2)
+        dvfa2 = dvfa_generator.create_symmetrical_i_n_minus_i(n=5, i=3)
+
+        union_dvfa = dvfa_tool.dvfa.DVFA.union(dvfa1,dvfa2)
+
+        word1 = dvfa_tool.word.Word([1, 2, 1])
+        word2 = dvfa_tool.word.Word([3, 5, 7, 2, 2])
+        word3 = dvfa_tool.word.Word([3, 3, 7, 1, 1])
+
+        res1 = dvfa_tool.run.Run(dvfa=union_dvfa, word=word1).run()
+        res2 = dvfa_tool.run.Run(dvfa=union_dvfa, word=word2).run()
+        res3 = dvfa_tool.run.Run(dvfa=union_dvfa, word=word3).run()
+
+        assert res1
+        assert res2
+        assert not res3
+
+    def test_big_scaleable_union(self):
+        dvfa1 = dvfa_generator.create_symmetrical_i_n_minus_i(n=500, i=50)
+        dvfa2 = dvfa_generator.create_symmetrical_i_n_minus_i(n=750, i=75)
+
+        union_dvfa = dvfa_tool.dvfa.DVFA.union(dvfa1, dvfa2)

@@ -3,6 +3,7 @@ from Utils import dvfa_generator
 
 
 class TestRun:
+
     def test_next_state_on_constant(self):
         # In this test we testing if performing a transition
         # creates all the properties of a config correctly.

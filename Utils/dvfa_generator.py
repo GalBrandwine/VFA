@@ -199,3 +199,62 @@ def create_sink_DVFA() -> dvfa_tool.dvfa.DVFA:
 
     dvfa = dvfa_tool.dvfa.DVFA(name="sink", starting_state=state1)
     return dvfa
+
+def create_symmetrical_i_n_minus_i(n=3, i=2):
+    # Accept all words in length n that their first i letters are unique
+    if i == 0 or n < 1:
+        return None
+    # Our tuples will be structured as (prev_state, var_set, letter_last_read ,number_of_letters_read)
+
+    dvfa_name = name="first_{}_unique_length_{}".format(i,n)
+    starting_state = dvfa_tool.state.State("s0", is_accepting=False)
+    current_state = starting_state
+    var_set = set()
+
+    for index in range(n):
+        state_name = "s{}".format(index)
+        if i > 0:
+            next_state = dvfa_tool.state.State(name=state_name, is_accepting=False)
+            var_name = "x{}".format(i)
+            current_state.add_transition(symbol=var_name, state=next_state)
+
+            sink_state = dvfa_tool.state.State(name="sink", is_accepting=False)
+
+            for var in var_set:
+                sink_state.add_transition(symbol=var,state=sink_state)
+            sink_state.add_transition(symbol="y", state=sink_state)
+
+            for var in var_set:
+                current_state.add_transition(var, sink_state)
+
+            var_set.add(var_name)
+
+            current_state = next_state
+            i = i - 1
+        else:
+            next_state = dvfa_tool.state.State(name=state_name, is_accepting=False)
+            for var in var_set:
+                current_state.add_transition(var, next_state)
+            current_state.add_transition("y",next_state)
+            current_state = next_state
+
+    current_state._is_accepting = True
+    sink_state = dvfa_tool.state.State(name="sink", is_accepting=False)
+
+    for var in var_set:
+        sink_state.add_transition(symbol=var, state=sink_state)
+    sink_state.add_transition(symbol="y", state=sink_state)
+
+    for var in var_set:
+        current_state.add_transition(var, next_state)
+    current_state.add_transition("y",sink_state)
+    return dvfa_tool.dvfa.DVFA(name=dvfa_name, starting_state=starting_state)
+
+
+
+
+
+
+    return dvfa_tool.dvfa.DVFA(name="{}th=={}-{}th".format(n,n,i),starting_state=starting_state)
+
+
