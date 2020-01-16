@@ -207,6 +207,7 @@ if __name__ == "__main__":
 
     intersetion_fig.show()
 
+
     run_x = union_x + intersection_x
     run_graph_bars = go.Scatter(
         x=run_x,
