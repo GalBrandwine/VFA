@@ -34,6 +34,7 @@ def analyse_run(run: DVFApy.run.Run) -> bool:
 def analyse_intersect(A: DVFApy.dvfa.DVFA, B: DVFApy.dvfa.DVFA) -> DVFApy.dvfa.DVFA:
     return DVFApy.dvfa.DVFA.intersect(A, B)
 
+
 @timeit_wrapper
 def analyse_union(A: DVFApy.dvfa.DVFA, B: DVFApy.dvfa.DVFA) -> DVFApy.dvfa.DVFA:
     return DVFApy.dvfa.DVFA.union(A, B)
@@ -41,9 +42,16 @@ def analyse_union(A: DVFApy.dvfa.DVFA, B: DVFApy.dvfa.DVFA) -> DVFApy.dvfa.DVFA:
 
 # Performance Analysis
 if __name__ == "__main__":
-    union_graph_bars = []
-    intersection_graph_bars = []
-    run_graph_bars = []
+    intersection_name = []
+    intersection_x = []
+    intersection_y = []
+
+    union_name = []
+    union_x = []
+    union_y = []
+
+    run_x = []
+    run_y = []
 
     desired_pal_len = 6
     palindromes = word_generator.palin_generator(desired_pal_len)  # Create all palindromes with desired length.
@@ -54,108 +62,117 @@ if __name__ == "__main__":
     # Performance Test 1
     n_1 = 5
     i_1 = 3
-    i_n__dvfa = dvfa_generator.create_symmetrical_i_n_minus_i(n_1, i_1)
+    i_n_1_dvfa = dvfa_generator.create_symmetrical_i_n_minus_i(n_1, i_1)
 
     n_2 = 50
     i_2 = 3
     i_n_2_dvfa = dvfa_generator.create_symmetrical_i_n_minus_i(n_2, i_2)
 
-    intersected = analyse_intersect(i_n__dvfa, i_n_2_dvfa)
-    intersection_graph_bars.append(
-        go.Scatter(x=[len(intersected.state_set)], y=[run_time], name=intersected.name))  # text="accepted: {}".format(None)
+    intersected = analyse_intersect(i_n_1_dvfa, i_n_2_dvfa)
+    intersection_x.append(len(intersected.state_set))
+    intersection_y.append(run_time)
+    intersection_name.append(intersected.name)
 
-    unioned = analyse_union(i_n__dvfa, i_n_2_dvfa)
-    union_graph_bars.append(
-        go.Scatter(x=[len(unioned.state_set)], y=[run_time], name=unioned.name))  # text="accepted: {}".format(None)
+    unioned = analyse_union(i_n_1_dvfa, i_n_2_dvfa)
+    union_x.append(len(unioned.state_set))
+    union_y.append(run_time)
+    union_name.append(unioned.name)
 
     run = DVFApy.run.Run(intersected, word)
     accepted = analyse_run(run)
-    run_graph_bars.append(go.Scatter(x=[len(intersected.state_set)], y=[run_time], name=intersected.name,
-                                 text="accepted: {}".format(accepted)))
+    run_y.append(run_time)
     run = DVFApy.run.Run(unioned, word)
     accepted = analyse_run(run)
-    run_graph_bars.append(go.Scatter(x=[len(unioned.state_set)], y=[run_time], name=unioned.name,
-                                 text="accepted: {}".format(accepted)))
+    run_y.append(run_time)
 
-    # Performance Test 2
+    # # Performance Test 2
     n_1 = 50
     i_1 = 10
-    i_n_10_50_dvfa = dvfa_generator.create_symmetrical_i_n_minus_i(n_1, i_1)
+    i_n_1_dvfa = dvfa_generator.create_symmetrical_i_n_minus_i(n_1, i_1)
 
     n_2 = 500
     i_2 = 10
-    i_n_10_500_dvfa = dvfa_generator.create_symmetrical_i_n_minus_i(n_2, i_2)
+    i_n_2_dvfa = dvfa_generator.create_symmetrical_i_n_minus_i(n_2, i_2)
 
-    intersected = analyse_intersect(i_n_10_50_dvfa, i_n_10_500_dvfa)
-    intersection_graph_bars.append(
-        go.Scatter(x=[len(intersected.state_set)], y=[run_time], name=intersected.name))  # text="accepted: {}".format(None)
+    intersected = analyse_intersect(i_n_1_dvfa, i_n_2_dvfa)
+    intersection_x.append(len(intersected.state_set))
+    intersection_y.append(run_time)
+    intersection_name.append(intersected.name)
 
-    unioned = analyse_union(i_n_10_50_dvfa, i_n_10_500_dvfa)
-    union_graph_bars.append(
-        go.Scatter(x=[len(unioned.state_set)], y=[run_time], name=unioned.name))  # text="accepted: {}".format(None)
+    unioned = analyse_union(i_n_1_dvfa, i_n_2_dvfa)
+    union_x.append(len(unioned.state_set))
+    union_y.append(run_time)
+    union_name.append(unioned.name)
 
     run = DVFApy.run.Run(intersected, word)
     accepted = analyse_run(run)
-    run_graph_bars.append(go.Scatter(x=[len(intersected.state_set)], y=[run_time], name=intersected.name,
-                                 text="accepted: {}".format(accepted)))
+    run_y.append(run_time)
     run = DVFApy.run.Run(unioned, word)
     accepted = analyse_run(run)
-    run_graph_bars.append(go.Scatter(x=[len(unioned.state_set)], y=[run_time], name=unioned.name,
-                                 text="accepted: {}".format(accepted)))
+    run_y.append(run_time)
 
-    # Performance Test 2
+    # Performance Test 3
     n_1 = 65
     i_1 = 45
-    i_n_10_50_dvfa = dvfa_generator.create_symmetrical_i_n_minus_i(n_1, i_1)
+    i_n_1_dvfa = dvfa_generator.create_symmetrical_i_n_minus_i(n_1, i_1)
 
     n_2 = 600
     i_2 = 199
-    i_n_10_500_dvfa = dvfa_generator.create_symmetrical_i_n_minus_i(n_2, i_2)
+    i_n_2_dvfa = dvfa_generator.create_symmetrical_i_n_minus_i(n_2, i_2)
 
-    intersected = analyse_intersect(i_n_10_50_dvfa, i_n_10_500_dvfa)
-    intersection_graph_bars.append(
-        go.Scatter(x=[len(intersected.state_set)], y=[run_time], name=intersected.name))  # text="accepted: {}".format(None)
+    intersected = analyse_intersect(i_n_1_dvfa, i_n_2_dvfa)
+    intersection_x.append(len(intersected.state_set))
+    intersection_y.append(run_time)
+    intersection_name.append(intersected.name)
 
-    unioned = analyse_union(i_n_10_50_dvfa, i_n_10_500_dvfa)
-    union_graph_bars.append(
-        go.Scatter(x=[len(unioned.state_set)], y=[run_time], name=unioned.name))  # text="accepted: {}".format(None)
+    unioned = analyse_union(i_n_1_dvfa, i_n_2_dvfa)
+    union_x.append(len(unioned.state_set))
+    union_y.append(run_time)
+    union_name.append(unioned.name)
 
     run = DVFApy.run.Run(intersected, word)
     accepted = analyse_run(run)
-    run_graph_bars.append(go.Scatter(x=[len(intersected.state_set)], y=[run_time], name=intersected.name,
-                                 text="accepted: {}".format(accepted)))
+    run_y.append(run_time)
     run = DVFApy.run.Run(unioned, word)
     accepted = analyse_run(run)
-    run_graph_bars.append(go.Scatter(x=[len(unioned.state_set)], y=[run_time], name=unioned.name,
-                                 text="accepted: {}".format(accepted)))
+    run_y.append(run_time)
 
-    # Performance Test 3
+    # Performance Test 4
     n_1 = 80
     i_1 = 45
-    i_n_10_50_dvfa = dvfa_generator.create_symmetrical_i_n_minus_i(n_1, i_1)
+    i_n_1_dvfa = dvfa_generator.create_symmetrical_i_n_minus_i(n_1, i_1)
 
     n_2 = 650
     i_2 = 19
-    i_n_10_500_dvfa = dvfa_generator.create_symmetrical_i_n_minus_i(n_2, i_2)
+    i_n_2_dvfa = dvfa_generator.create_symmetrical_i_n_minus_i(n_2, i_2)
 
-    intersected = analyse_intersect(i_n_10_50_dvfa, i_n_10_500_dvfa)
-    intersection_graph_bars.append(
-        go.Scatter(x=[len(intersected.state_set)], y=[run_time], name=intersected.name))  # text="accepted: {}".format(None)
+    intersected = analyse_intersect(i_n_1_dvfa, i_n_2_dvfa)
+    intersection_x.append(len(intersected.state_set))
+    intersection_y.append(run_time)
+    intersection_name.append(intersected.name)
 
-    unioned = analyse_union(i_n_10_50_dvfa, i_n_10_500_dvfa)
-    union_graph_bars.append(
-        go.Scatter(x=[len(unioned.state_set)], y=[run_time], name=unioned.name))  # text="accepted: {}".format(None)
+    unioned = analyse_union(i_n_1_dvfa, i_n_2_dvfa)
+    union_x.append(len(unioned.state_set))
+    union_y.append(run_time)
+    union_name.append(unioned.name)
 
     run = DVFApy.run.Run(intersected, word)
     accepted = analyse_run(run)
-    run_graph_bars.append(go.Scatter(x=[len(intersected.state_set)], y=[run_time], name=intersected.name,
-                                 text="accepted: {}".format(accepted)))
+    run_y.append(run_time)
     run = DVFApy.run.Run(unioned, word)
     accepted = analyse_run(run)
-    run_graph_bars.append(go.Scatter(x=[len(unioned.state_set)], y=[run_time], name=unioned.name,
-                                 text="accepted: {}".format(accepted)))
+    run_y.append(run_time)
 
     # Graph preparations
+
+    union_graph_bars = go.Scatter(
+        x=union_x,
+        y=union_y,
+        hovertext=union_name,
+        mode='markers',
+        marker=dict(size=40,
+                    color=[color for color in range(len(union_x))])
+    )
     union_layout = go.Layout(
         title=go.layout.Title(text="Runtime analysis: UNION"),
         xaxis_title="Number of states",
@@ -169,6 +186,14 @@ if __name__ == "__main__":
     union_fig.update_layout(barmode='group')
     union_fig.show()
 
+    intersected_graph_bars = go.Scatter(
+        x=intersection_x,
+        y=intersection_y,
+        hovertext=intersection_name,
+        mode='markers',
+        marker=dict(size=40,
+                    color=[color for color in range(len(intersection_x))])
+    )
     intersection_layout = go.Layout(
         title=go.layout.Title(text="Runtime analysis: INTERSECTION"),
         xaxis_title="Number of states",
@@ -176,14 +201,24 @@ if __name__ == "__main__":
     )
 
     intersetion_fig = go.Figure(
-        data=intersection_graph_bars,
+        data=intersected_graph_bars,
         layout=intersection_layout
     )
-    intersetion_fig.update_layout(barmode='group')
+
     intersetion_fig.show()
 
+    run_x = union_x + intersection_x
+    run_graph_bars = go.Scatter(
+        x=run_x,
+        y=run_y,
+        hovertext=union_name + intersection_name,
+        mode='markers',
+        marker=dict(size=40,
+                    color=[color for color in range(len(run_x))])
+    )
     run_on_word_layout = go.Layout(
-        title=go.layout.Title(text="Runtime analysis, on word {}, [length: {}]".format(word.word,word.get_word_length())),
+        title=go.layout.Title(
+            text="Runtime analysis, on word {}, [length: {}]".format(word.word, word.get_word_length())),
         xaxis_title="Number of states",
         yaxis_title="Run time [sec]",
     )
@@ -192,5 +227,4 @@ if __name__ == "__main__":
         data=run_graph_bars,
         layout=run_on_word_layout
     )
-    run_on_word_fig.update_layout(barmode='group')
     run_on_word_fig.show()
