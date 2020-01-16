@@ -100,7 +100,7 @@ if __name__ == "__main__":
 
     # Graph preparations
     layout = go.Layout(
-        title=go.layout.Title(text="Runtime analysis, on word length: {}".format(word.get_word_length())),
+        title=go.layout.Title(text="Runtime analysis, on word {}, [length: {}]".format(word.word,word.get_word_length())),
 
         xaxis_title="Number of states",
         yaxis_title="Run time",

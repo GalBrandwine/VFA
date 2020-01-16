@@ -8,7 +8,7 @@ def palin_generator(n_input: int) -> list:
 
     WARNING: super inefficient!
     """
-    max_len = 1000000
+    max_len = 10000000
     str_len = len(str(max_len))
 
     if n_input >= str_len:
