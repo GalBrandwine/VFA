@@ -71,8 +71,8 @@ SMALLBUTTONSIZE = (10, 1)
 LARGEBUTTONSIZE = (12, 1)
 
 # ------ Menu Definition ------ #
-menu_def = [['Setting', 'set RecursionLimit'],
-            ['Help', 'About...'], ]
+menu_def = [['Setting', SETTINGS_RECURSION_LIMIT],
+            ['Help', HELPSTR], ]
 
 word_pane = [
     [sg.Button('Create', key="Create_WORD", size=SMALLBUTTONSIZE)],
@@ -263,7 +263,6 @@ def run_on_word(event: str, values: dict):
         sg.popup_error("First create a WORD!", title=POPUPERRORTITLE, )
         return
 
-    # if event == "Ok":
     message = ""
     err_popup = False
     # Check input
@@ -324,7 +323,13 @@ def save_dvfa(dvfa_name: str, dvfa: DVFApy, given_path: str):
         sg.popup_error(NOTGENERATED.format(dvfa_name), title=POPUPERRORTITLE, )
         return
     path, name = os.path.split(given_path)
-    utils.dvfa_saver.save(dvfa, path, name)
+
+    try:
+        utils.dvfa_saver.save(dvfa, path, name)
+
+    except RecursionError as e:
+        sg.popup_error(e, title=POPUPERRORTITLE + " Try changing RecursionLimit, in settings. ", )
+        return
 
 
 def load_dvfa(given_path) -> DVFApy.dvfa.DVFA:
@@ -363,19 +368,23 @@ def intersect(event, values):
         return
 
     # Execute Logic
-    if values["Intersect_{}".format(NAME_DVFA1)] is True:
-        dvfa1 = DVFApy.dvfa.DVFA.intersect(dvfa1, dvfa2)
-        message = "Intersected into {}: {}".format(NAME_DVFA1, dvfa1.print())
-        logger.log_print(message)
+    try:
+        if values["Intersect_{}".format(NAME_DVFA1)] is True:
+            dvfa1 = DVFApy.dvfa.DVFA.intersect(dvfa1, dvfa2)
+            message = "Intersected into {}: {}".format(NAME_DVFA1, dvfa1.print())
+            logger.log_print(message)
+            return
+        if values["Intersect_{}".format(NAME_DVFA2)] is True:
+            dvfa2 = DVFApy.dvfa.DVFA.intersect(dvfa1, dvfa2)
+            message = "Intersected into {}: {}".format(NAME_DVFA2, dvfa2.print())
+            logger.log_print(message)
+            return
+        else:
+            message = TOOMANYCHECKED
+            sg.popup_error(message, title=POPUPERRORTITLE)
+    except RecursionError as e:
+        sg.popup_error(e, title=POPUPERRORTITLE + " Try changing RecursionLimit, in settings. ", )
         return
-    if values["Intersect_{}".format(NAME_DVFA2)] is True:
-        dvfa2 = DVFApy.dvfa.DVFA.intersect(dvfa1, dvfa2)
-        message = "Intersected into {}: {}".format(NAME_DVFA2, dvfa2.print())
-        logger.log_print(message)
-        return
-    else:
-        message = TOOMANYCHECKED
-        sg.popup_error(message, title=POPUPERRORTITLE)
 
 
 @timeit_wrapper
@@ -406,19 +415,24 @@ def union(event, values):
         return
 
     # Execute Logic
-    if values["Union_{}".format(NAME_DVFA1)] is True:
-        dvfa1 = DVFApy.dvfa.DVFA.union(dvfa1, dvfa2)
-        message = "United into {}: {}".format(NAME_DVFA1, dvfa1.print())
-        logger.log_print(message)
+    try:
+        if values["Union_{}".format(NAME_DVFA1)] is True:
+            dvfa1 = DVFApy.dvfa.DVFA.union(dvfa1, dvfa2)
+            message = "United into {}: {}".format(NAME_DVFA1, dvfa1.print())
+            logger.log_print(message)
+            return
+        if values["Union_{}".format(NAME_DVFA2)] is True:
+            dvfa2 = DVFApy.dvfa.DVFA.union(dvfa1, dvfa2)
+            message = "United into {}: {}".format(NAME_DVFA2, dvfa2.print())
+            logger.log_print(message)
+            return
+        else:
+            message = TOOMANYCHECKED
+            sg.popup_error(message, title=POPUPERRORTITLE)
+    except RecursionError as e:
+        sg.popup_error(e, title=POPUPERRORTITLE + " Try changing RecursionLimit, in settings. ", )
         return
-    if values["Union_{}".format(NAME_DVFA2)] is True:
-        dvfa2 = DVFApy.dvfa.DVFA.union(dvfa1, dvfa2)
-        message = "United into {}: {}".format(NAME_DVFA2, dvfa2.print())
-        logger.log_print(message)
-        return
-    else:
-        message = TOOMANYCHECKED
-        sg.popup_error(message, title=POPUPERRORTITLE)
+
 
 
 @timeit_wrapper
@@ -442,8 +456,13 @@ def unwind(event):
             sg.popup_error(message, title=POPUPERRORTITLE)
             return
         # Execute Logic
-        dvfa2, _ = DVFApy.dvfa.DVFA.unwind(dvfa2)
-        logger.log_print("Unwinded: {}: {}".format(NAME_DVFA2, dvfa2.print()))
+        try:
+            dvfa2, _ = DVFApy.dvfa.DVFA.unwind(dvfa2)
+            logger.log_print("Unwinded: {}: {}".format(NAME_DVFA2, dvfa2.print()))
+        except RecursionError as e:
+            sg.popup_error(e, title=POPUPERRORTITLE + " Try changing RecursionLimit, in settings. ", )
+            return
+
 
 
 @timeit_wrapper
