@@ -1,14 +1,51 @@
 import os
+import resource
+import sys
 from functools import wraps
 from timeit import default_timer as timer
 
 import PySimpleGUI as sg
 
 import DVFApy
-from Utils import logger
-from Utils import dvfa_generator
 import Utils as utils
+from Utils import dvfa_generator
+from Utils import logger
 
+about = """
+This is The VDFA tool.
+
+A tool for creating DVFAs, and performing operations on them.
+
+Capabilities:
+    DVFA section:
+        1. Press "Generate" - to generate one of the optional DVFAs.
+        2. Press "Load"     - to load a VDFA from disk.
+        3. Press "Save as"  - to save a VDFA to disk.
+        4. Unwind           - to unwind current DVFA, unwinded result will overwrite existing one.
+        4. Complement       - to complement current DVFA, complemented result will overwrite existing one.
+    
+    WORD section:
+        1. Press "Create"   - to create a WORD, a word contain numbers only, and will look like: 1,30,2,........
+        2. Press "Load"     - to load a WORD from disk.
+        3. Press "Save as"  - to save a WORD to disk.
+    
+    DVFA Actions section:
+        1. Press "Run on"           - to Run a WORD on a DVFA.
+            (note: WORD & DVFA's must be created before.)
+        2. press "Intersect into"   - to intersect DVFA1 and DVFA2 into selected DVFA from checkbox.
+        3. press "Union into"       - to union DVFA1 and DVFA2 into selected DVFA from checkbox.
+    
+    Settings:
+        set RecursionLimit:
+            This limit prevents any program from getting into infinite recursion, 
+            Otherwise infinite recursion will lead to overflow of the C stack and crash the Python.
+            The highest possible limit is platform-dependent. 
+            This should be done with care because too-high limit can lead to crash.
+           
+            Default value is 0x1000.
+            We found that the RECURSIONLIMITs upper bound for DVFAs with 45k states
+            require a limit that is at least 0x3356
+"""
 
 # Gui config
 sg.ChangeLookAndFeel('DefaultNoMoreNagging')
@@ -19,36 +56,47 @@ NAME_DVFA2 = "DVFA2"
 dvfa1: DVFApy.dvfa.DVFA = None
 dvfa2: DVFApy.dvfa.DVFA = None
 word: DVFApy.word.Word = None
+MAX_REC_LIMIT = 0x1000
 
 # Error Messages
 POPUPERRORTITLE = "Bad Kitty!"
 UNCECKED = "Check at least one option!"
 TOOMANYCHECKED = "Check only one option!"
 NOTGENERATED = "Generate {} first!"
+HELPSTR = "About..."
+SETTINGS_RECURSION_LIMIT = 'set RecursionLimit'
 
 # Button Sizes
 SMALLBUTTONSIZE = (10, 1)
 LARGEBUTTONSIZE = (12, 1)
 
+# ------ Menu Definition ------ #
+menu_def = [['Setting', 'set RecursionLimit'],
+            ['Help', 'About...'], ]
+
 word_pane = [
     [sg.Button('Create', key="Create_WORD", size=SMALLBUTTONSIZE)],
     # Stupid invisible line for triggering an EVENT, after leading a file.
     [sg.Input(key='Load_WORD', enable_events=True, visible=False)],
-    [sg.FileBrowse("Load", key='Load_WORD_path', size=SMALLBUTTONSIZE, file_types=(("CSV Files", "*.csv"),), target='Load_WORD')],
+    [sg.FileBrowse("Load", key='Load_WORD_path', size=SMALLBUTTONSIZE, file_types=(("CSV Files", "*.csv"),),
+                   target='Load_WORD')],
     [sg.Input(key='Save_WORD', enable_events=True, visible=False)],
-    [sg.FileSaveAs(key='Save_WORD_path', size=SMALLBUTTONSIZE, file_types=(("CSV Files", "*.csv"),), target='Save_WORD')],
+    [sg.FileSaveAs(key='Save_WORD_path', size=SMALLBUTTONSIZE, file_types=(("CSV Files", "*.csv"),),
+                   target='Save_WORD')],
     [sg.Text(size=SMALLBUTTONSIZE)],
     [sg.Text(size=SMALLBUTTONSIZE)],
     [sg.Text(size=SMALLBUTTONSIZE)]
 ]
 
 right_button_pane = [
-    [sg.Button('Run on:', key='Run',size=LARGEBUTTONSIZE), sg.Checkbox('{}'.format(NAME_DVFA1), key="run_{}".format(NAME_DVFA1)),
+    [sg.Button('Run on:', key='Run', size=LARGEBUTTONSIZE),
+     sg.Checkbox('{}'.format(NAME_DVFA1), key="run_{}".format(NAME_DVFA1)),
      sg.Checkbox('{}'.format(NAME_DVFA2), key="run_{}".format(NAME_DVFA2))],
-    [sg.Button('Intersect into:', key='Intersect',size=LARGEBUTTONSIZE),
+    [sg.Button('Intersect into:', key='Intersect', size=LARGEBUTTONSIZE),
      sg.Checkbox('{}'.format(NAME_DVFA1), key="Intersect_{}".format(NAME_DVFA1)),
      sg.Checkbox('{}'.format(NAME_DVFA2), key="Intersect_{}".format(NAME_DVFA2))],
-    [sg.Button('Union into:', key='Union',size=LARGEBUTTONSIZE), sg.Checkbox('{}'.format(NAME_DVFA1), key="Union_{}".format(NAME_DVFA1)),
+    [sg.Button('Union into:', key='Union', size=LARGEBUTTONSIZE),
+     sg.Checkbox('{}'.format(NAME_DVFA1), key="Union_{}".format(NAME_DVFA1)),
      sg.Checkbox('{}'.format(NAME_DVFA2), key="Union_{}".format(NAME_DVFA2))],
     [sg.Text(size=SMALLBUTTONSIZE)],
     [sg.Text(size=SMALLBUTTONSIZE)],
@@ -59,23 +107,27 @@ right_button_pane = [
 left_dvfa_column = [
     [sg.Button('Generate', key="Generate_{}".format(NAME_DVFA1), size=SMALLBUTTONSIZE)],
     [sg.Input(key='Load_{}'.format(NAME_DVFA1), enable_events=True, visible=False)],
-    [sg.FileBrowse("Load", key="Load_{}_path".format(NAME_DVFA1), size=SMALLBUTTONSIZE, file_types=(("PICKLE Files", "*.pickle"),),
+    [sg.FileBrowse("Load", key="Load_{}_path".format(NAME_DVFA1), size=SMALLBUTTONSIZE,
+                   file_types=(("PICKLE Files", "*.pickle"),),
                    target='Load_{}'.format(NAME_DVFA1))],
     [sg.Input(key='save_{}'.format(NAME_DVFA1), enable_events=True, visible=False)],
-    [sg.FileSaveAs(key='Save_{}_path'.format(NAME_DVFA1), size=SMALLBUTTONSIZE, file_types=(("PICKLE Files", "*.pickle"),),
+    [sg.FileSaveAs(key='Save_{}_path'.format(NAME_DVFA1), size=SMALLBUTTONSIZE,
+                   file_types=(("PICKLE Files", "*.pickle"),),
                    target='save_{}'.format(NAME_DVFA1))],
     [sg.Text('Actions:')],
-    [sg.Button("Unwind", key='Unwind_{}'.format(NAME_DVFA1),size=SMALLBUTTONSIZE)],
-    [sg.Button("Complement", key='Complement_{}'.format(NAME_DVFA1),size=SMALLBUTTONSIZE)]
+    [sg.Button("Unwind", key='Unwind_{}'.format(NAME_DVFA1), size=SMALLBUTTONSIZE)],
+    [sg.Button("Complement", key='Complement_{}'.format(NAME_DVFA1), size=SMALLBUTTONSIZE)]
 ]
 
 right_dvfa_column = [
-    [sg.Button('Generate',size=SMALLBUTTONSIZE, key="Generate_{}".format(NAME_DVFA2))],
+    [sg.Button('Generate', size=SMALLBUTTONSIZE, key="Generate_{}".format(NAME_DVFA2))],
     [sg.Input(key='Load_{}'.format(NAME_DVFA2), enable_events=True, visible=False)],
-    [sg.FileBrowse("Load", key="Load_{}_path".format(NAME_DVFA2),size=SMALLBUTTONSIZE ,file_types=(("PICKLE Files", "*.pickle"),),
+    [sg.FileBrowse("Load", key="Load_{}_path".format(NAME_DVFA2), size=SMALLBUTTONSIZE,
+                   file_types=(("PICKLE Files", "*.pickle"),),
                    target='Load_{}'.format(NAME_DVFA2))],
     [sg.Input(key='save_{}'.format(NAME_DVFA2), enable_events=True, visible=False)],
-    [sg.FileSaveAs(key='Save_{}_path'.format(NAME_DVFA2), size=SMALLBUTTONSIZE, file_types=(("PICKLE Files", "*.pickle"),),
+    [sg.FileSaveAs(key='Save_{}_path'.format(NAME_DVFA2), size=SMALLBUTTONSIZE,
+                   file_types=(("PICKLE Files", "*.pickle"),),
                    target='save_{}'.format(NAME_DVFA2))],
     [sg.Text('Actions:')],
     [sg.Button("Unwind", key='Unwind_{}'.format(NAME_DVFA2), size=SMALLBUTTONSIZE)],
@@ -84,13 +136,14 @@ right_dvfa_column = [
 
 layout = [
     [
-    sg.Frame(NAME_DVFA1, left_dvfa_column),
-    sg.Frame(NAME_DVFA2, right_dvfa_column),
-    sg.Frame('Word',word_pane),
-    sg.Frame('DVFA Actions',right_button_pane)
+        sg.Menu(menu_def, tearoff=True),
+        sg.Frame(NAME_DVFA1, left_dvfa_column),
+        sg.Frame(NAME_DVFA2, right_dvfa_column),
+        sg.Frame('Word', word_pane),
+        sg.Frame('DVFA Actions', right_button_pane)
     ],
     [
-    sg.Output(size=(100, 15)),
+        sg.Output(size=(100, 15)),
     ],
     [sg.Text("DVFA tool by Alon Ben-yosef & Gal Brandwine " + chr(169))]
 ]
@@ -110,6 +163,34 @@ def timeit_wrapper(func):
         return func_return_val
 
     return wrapper
+
+
+def set_recursion_limit_popup() -> None:
+    global MAX_REC_LIMIT
+    recursion_limit_popup = [
+        [sg.Slider(range=(0x1000, 0x10000), orientation='h', size=(34, 20), default_value=sys.getrecursionlimit())],
+        [sg.Ok(), sg.Cancel()]
+    ]
+
+    popup = sg.Window('Recursion Limit setting', recursion_limit_popup)
+    res_event, res_values = popup.Read()
+    if res_event == 'Ok':
+        MAX_REC_LIMIT = int(res_values[0])
+        resource.setrlimit(resource.RLIMIT_STACK, [0x100 * MAX_REC_LIMIT, resource.RLIM_INFINITY])
+        sys.setrecursionlimit(MAX_REC_LIMIT)
+
+    popup.close()
+
+
+def about_popup() -> None:
+    about_the_tool_popup = [
+        [sg.Text(about)],
+        [sg.Ok(), sg.Cancel()]
+    ]
+
+    popup = sg.Window('About', about_the_tool_popup)
+    popup.Read()
+    popup.close()
 
 
 def generate_popup():
@@ -236,6 +317,9 @@ def Save_WORD(path: str):
 
 
 def save_dvfa(dvfa_name: str, dvfa: DVFApy, given_path: str):
+    if len(given_path) is 0:
+        sg.popup_error("Path is Empty", title=POPUPERRORTITLE, )
+        return
     if dvfa is None:
         sg.popup_error(NOTGENERATED.format(dvfa_name), title=POPUPERRORTITLE, )
         return
@@ -244,6 +328,9 @@ def save_dvfa(dvfa_name: str, dvfa: DVFApy, given_path: str):
 
 
 def load_dvfa(given_path) -> DVFApy.dvfa.DVFA:
+    if len(given_path) is 0:
+        sg.popup_error("Path is Empty", title=POPUPERRORTITLE, )
+        return
     loaded_dvfa = utils.dvfa_loader.load(given_path)
     return loaded_dvfa
 
@@ -466,6 +553,11 @@ def event_handler(event, values):
         complement(event)
     if event == "Complement_{}".format(NAME_DVFA2):
         complement(event)
+
+    if event == HELPSTR:
+        about_popup()
+    if event == SETTINGS_RECURSION_LIMIT:
+        set_recursion_limit_popup()
 
 
 while True:  # The Event Loop
