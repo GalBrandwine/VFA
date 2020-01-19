@@ -82,11 +82,11 @@ This limit prevents any program from getting into infinite recursion, Otherwise 
 
 The highest possible limit is platform-dependent. This should be done with care because too-high limit can lead to crash.
 
-In our case the default value was 1000.<br>
-After setting RECURSIONLIMIT to 100000, we could easily work with big DVFAs (45k states).
+In our case the default value was 0x1000.<br>
+After setting RECURSIONLIMIT to 0x100000, we could easily work with big DVFAs (45k states).
 
-While setting it to 100000 worked fine,<br>
-one can set it to 10000, and it will still be enough for working with DVFAs that big.
+While setting it to 0x100000 worked fine,<br>
+one can set it to 0x10000, and it will still be enough for working with DVFAs that big.
 
 After some research,<br>
-we found that the RECURSIONLIMITs upper bound for DVFAs with 45k states require a limit that is at least **3356**
+we found that the RECURSIONLIMITs upper bound for DVFAs with 45k states require a limit that is at least **0x3356**
