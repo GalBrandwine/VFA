@@ -108,21 +108,3 @@ class Run:
         while not config.has_finished():
             config = self.next_state()
         return config.is_current_state_accepting()
-
-    #     # todo: implement run of dvfa over word.
-    #     self.is_running = True
-    #     print("run started")
-    #
-    #     # *************************************** STUPID LOOP FOR SHOWING DEBUG WORKS!!! *******************************
-    #     for i in range(0, 30):
-    #         if self.stop_flag is False:
-    #             self.logger.info(i)
-    #             time.sleep(0.5)
-    #         else:
-    #             break
-    #
-    #     self.is_running = False
-
-    # def stop(self):
-    #     self.stop_flag = True
-    #     print("run stopped")
