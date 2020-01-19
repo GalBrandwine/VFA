@@ -15,6 +15,7 @@ Gui was pre-designed using [this site](https://designer.gravit.io/?d=UGo_UmGpW)
 
 ## DVFA pickle size
 ![pickle size](https://github.com/GalBrandwine/VFA/blob/performenceAnalysis/Docs/PicleSizeAnalysis/Pickle_Size.png)
+<br>
 Using the **Pickle** library.
 <br> 
 The pickle module implements binary protocols for serializing and de-serializing a Python object structure.
@@ -76,11 +77,16 @@ sys.setrecursionlimit(max_rec)
 
 
 **A note about *RECURSIONLIMIT*:** <br>
-The default value is 1000.<br>
+```sys.setrecursionlimit()``` method is used to set the maximum depth of the Python interpreter stack to the required limit.
+This limit prevents any program from getting into infinite recursion, Otherwise infinite recursion will lead to overflow of the C stack and crash the Python.
+
+The highest possible limit is platform-dependent. This should be done with care because too-high limit can lead to crash.
+
+In our case the default value was 1000.<br>
 After setting RECURSIONLIMIT to 100000, we could easily work with big DVFAs (45k states).
 
 While setting it to 100000 worked fine,<br>
-one can set it to 1000, and it will still be enough for working with DVFAs that big.
+one can set it to 10000, and it will still be enough for working with DVFAs that big.
 
 After some research,<br>
-we found that the RECURSIONLIMIT upper-bound for DVFAs with 45k states require at-least **3356**
+we found that the RECURSIONLIMITs upper bound for DVFAs with 45k states require a limit that is at least **3356**
