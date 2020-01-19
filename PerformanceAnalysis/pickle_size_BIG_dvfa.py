@@ -214,7 +214,7 @@ if __name__ == "__main__":
         title=go.layout.Title(
             text="Pickled file size analysis"),  # on word {}, [length: {}]".format(word.word, word.get_word_length())
         xaxis_title="Number of states",
-        yaxis_title="Pickl size [KB]",
+        yaxis_title="Pickle size [KB]",
     )
 
     pickle_size_fig = go.Figure(
