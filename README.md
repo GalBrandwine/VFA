@@ -7,11 +7,11 @@ Gui was pre-designed using [this site](https://designer.gravit.io/?d=UGo_UmGpW)
 
 # PerformanceAnalysis
 ## DVFAs Operations RUNTIME
-![Intersection runtime](https://github.com/GalBrandwine/VFA/blob/Dev/Docs/updated%20images%20from%20analysis/RUNTIME_INTERSECTION.png)
+![Intersection runtime](https://github.com/GalBrandwine/VFA/blob/performenceAnalysis/Docs/RuntimeAnalysis/RUNTIME_INTERSECTION.png)
 
-![union runtime](https://github.com/GalBrandwine/VFA/blob/Dev/Docs/updated%20images%20from%20analysis/RUNTIME_UNION.png)
+![union runtime](https://github.com/GalBrandwine/VFA/blob/performenceAnalysis/Docs/RuntimeAnalysis/RUNTIME_UNION.png)
 
-![run on 6PAL runtime](https://github.com/GalBrandwine/VFA/blob/performenceAnalysis/Docs/updated%20images%20from%20analysis/RUNTIM_on_6pal.png)
+![run on 6PAL runtime](https://github.com/GalBrandwine/VFA/blob/performenceAnalysis/Docs/RuntimeAnalysis/RUNTIM_on_6pal.png)
 
 ## DVFA pickle size
 ![pickle size](https://github.com/GalBrandwine/VFA/blob/performenceAnalysis/Docs/PicleSizeAnalysis/Pickle_Size.png)
