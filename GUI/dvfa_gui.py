@@ -250,6 +250,13 @@ def create_word(create_word_values: dict) -> None:
     # 2. than creates a WORD from that list.
     input_string: str = create_word_values[0]
     splited = input_string.split(",")
+
+    # Empty word
+    if input_string == "":
+        word = DVFApy.word.Word([])
+        logger.log_print("Word generated = {}, length:{}".format(word.word, word.get_word_length()))
+        return
+
     try:
         word = DVFApy.word.Word([int(d) for d in splited])
         logger.log_print("Word generated = {}, length:{}".format(word.word, word.get_word_length()))
