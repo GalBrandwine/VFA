@@ -1,26 +1,23 @@
-import os
-import resource
-import sys
+import Utils as utils
 from functools import wraps
 from timeit import default_timer as timer
-
-import PySimpleGUI as sg
-
-import DVFApy
-import Utils as utils
 from Utils import dvfa_generator
 from Utils import logger
+import PySimpleGUI as sg
+import DVFApy
+import os
+import sys
 
 about = """
-This is The VDFA tool.
+This is The DVFA tool.
 
 A tool for creating DVFAs, and performing operations on them.
 
 Capabilities:
     DVFA section:
         1. Press "Generate" - to generate one of the optional DVFAs.
-        2. Press "Load"     - to load a VDFA from disk.
-        3. Press "Save as"  - to save a VDFA to disk.
+        2. Press "Load"     - to load a DVFA from disk.
+        3. Press "Save as"  - to save a DVFA to disk.
         4. Unwind           - to unwind current DVFA, unwinded result will overwrite existing one.
         4. Complement       - to complement current DVFA, complemented result will overwrite existing one.
     
@@ -36,14 +33,14 @@ Capabilities:
         3. press "Union into"       - to union DVFA1 and DVFA2 into selected DVFA from checkbox.
     
     Settings:
-        set RecursionLimit:
+        Set RecursionLimit:
             This limit prevents any program from getting into infinite recursion, 
             Otherwise infinite recursion will lead to overflow of the C stack and crash the Python.
             The highest possible limit is platform-dependent. 
             This should be done with care because too-high limit can lead to crash.
            
             Default value is 0x1000.
-            We found that the RECURSIONLIMITs upper bound for DVFAs with 45k states
+            We found that RECURSIONLIMIT's upper bound for DVFAs with 45k states
             require a limit that is at least 0x3356
 """
 
@@ -64,7 +61,7 @@ UNCECKED = "Check at least one option!"
 TOOMANYCHECKED = "Check only one option!"
 NOTGENERATED = "Generate {} first!"
 HELPSTR = "About..."
-SETTINGS_RECURSION_LIMIT = 'set RecursionLimit'
+SETTINGS_RECURSION_LIMIT = 'Set RecursionLimit'
 
 # Button Sizes
 SMALLBUTTONSIZE = (10, 1)
@@ -176,7 +173,7 @@ def set_recursion_limit_popup() -> None:
     res_event, res_values = popup.Read()
     if res_event == 'Ok':
         MAX_REC_LIMIT = int(res_values[0])
-        resource.setrlimit(resource.RLIMIT_STACK, [0x100 * MAX_REC_LIMIT, resource.RLIM_INFINITY])
+        #resource.setrlimit(resource.RLIMIT_STACK, [0x100 * MAX_REC_LIMIT, resource.RLIM_INFINITY])
         sys.setrecursionlimit(MAX_REC_LIMIT)
 
     popup.close()

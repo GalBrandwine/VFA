@@ -8,6 +8,7 @@
 # except ImportError:
 #     # Python 3
 #     import builtins as __builtin__
+import sys
 
 from DVFApy.state import State
 from DVFApy.exceptions import DvfaException
@@ -379,55 +380,98 @@ class DVFA:
         return True
 
     @staticmethod
-    def intersect(A, B):
+    def intersect(A, B, max_recursion_depth=None):
         """
         Intersection is a boolean operator between two DVFA that calculates a DVFA which accepts the
         intersection of the languages accepted by two DVFAs, in other words: L(A union B) = L(A) intersect L(B)
         :param A: DVFA
         :param B: DVFA
-        :return: Intersected DVFA
+        :param max_recursion_depth: number, python has a predefined stack depth, to counter that we allow the user to
+        modify maximal stack depth (default value = None, will use the current system limit)
+        :return: Intersect DVFA
         """
-        U1, U1_dict = DVFA.unwind(A)
-        U2, U2_dict = DVFA.unwind(B)
+        original_stack_size = sys.getrecursionlimit()
+        if max_recursion_depth is None:
+            max_recursion_depth = original_stack_size
+        sys.setrecursionlimit(max_recursion_depth)
 
-        op_construct = _BooleanOperatorConstruct(u1=U1, u1_dict=U1_dict, u2=U2, u2_dict=U2_dict, is_union=False)
-        const_matchings = op_construct.calculate_common_constants_matchings()
-        new_rule = (U1.starting_state, U2.starting_state, const_matchings)
-        new_starting_state = DVFA._recursive_boolean_operation(current_rule=new_rule, op_construct=op_construct)
+        try:
+            U1, U1_dict = DVFA.unwind(A)
+            U2, U2_dict = DVFA.unwind(B)
 
-        return DVFA(starting_state=new_starting_state, name="{}_intersect_{}".format(A.name, B.name))
+            op_construct = _BooleanOperatorConstruct(u1=U1, u1_dict=U1_dict, u2=U2, u2_dict=U2_dict, is_union=False)
+            const_matchings = op_construct.calculate_common_constants_matchings()
+            new_rule = (U1.starting_state, U2.starting_state, const_matchings)
+            new_starting_state = DVFA._recursive_boolean_operation(current_rule=new_rule, op_construct=op_construct)
+            return DVFA(starting_state=new_starting_state, name="{}_intersect_{}".format(A.name, B.name))
+        except RecursionError as e:
+            raise e
+        except Exception as e:
+            raise DvfaException(msg="Intersect Failed!", original_exception=e)
+
+        finally:
+            sys.setrecursionlimit(original_stack_size)
+
 
     @staticmethod
-    def unwind(A):
+    def unwind(A, max_recursion_depth=None):
         """
         Unwinding operation on A will return an unwinded form of A, which is a new DVFA where each state "remembers"
         the bound and free variables read so far and L(A) = L(unwind(A)).
         :param A: DVFA
+        :param max_recursion_depth: number, python has a predefined stack depth, to counter that we allow the user to
+        modify maximal stack depth (default value = None, will use the current system limit)
         :return:(unwinded_DVFA, map[key=state,value=[symbols]])
         """
+        original_stack_size = sys.getrecursionlimit()
+        if max_recursion_depth is None:
+            max_recursion_depth = original_stack_size
+        sys.setrecursionlimit(max_recursion_depth)
 
-        u_states_dict = dict()
-        u_result_dict = dict()
-        u_state = DVFA._recursive_unwinding(A, current_tuple=None, u_states_dict=u_states_dict, is_first=True)
-        for unwind_tuple, state in u_states_dict.items():
-            u_result_dict[state] = unwind_tuple[1]
-        return DVFA(starting_state=u_state, name="unwinded_{}".format(A.name)), u_result_dict
+        try:
+            u_states_dict = dict()
+            u_result_dict = dict()
+            u_state = DVFA._recursive_unwinding(A, current_tuple=None, u_states_dict=u_states_dict, is_first=True)
+            for unwind_tuple, state in u_states_dict.items():
+                u_result_dict[state] = unwind_tuple[1]
+            return DVFA(starting_state=u_state, name="unwinded_{}".format(A.name)), u_result_dict
+        except RecursionError as e:
+            raise e
+        except Exception as e:
+            raise DvfaException(msg="Union Failed!", original_exception=e)
+
+        finally:
+            sys.setrecursionlimit(original_stack_size)
 
     @staticmethod
-    def union(A, B):
+    def union(A, B, max_recursion_depth=None):
         """
         Union is a boolean operator between two DVFA that calculates a DVFA which accepts the
         union of the languages accepted by two DVFAs, in other words: L(A union B) = L(A) union L(B).
         :param A: DVFA
         :param B: DVFA
+        :param max_recursion_depth: number, python has a predefined stack depth, to counter that we allow the user to
+        modify maximal stack depth (default value = None, will use the current system limit)
         :return: Union DVFA
         """
-        U1, U1_dict = DVFA.unwind(A)
-        U2, U2_dict = DVFA.unwind(B)
 
-        op_construct = _BooleanOperatorConstruct(u1=U1, u1_dict=U1_dict, u2=U2, u2_dict=U2_dict, is_union=True)
-        const_matchings = op_construct.calculate_common_constants_matchings()
-        new_rule = (U1.starting_state, U2.starting_state, const_matchings)
-        new_starting_state = DVFA._recursive_boolean_operation(current_rule=new_rule, op_construct=op_construct)
+        original_stack_size = sys.getrecursionlimit()
+        if max_recursion_depth is None:
+            max_recursion_depth = original_stack_size
+        sys.setrecursionlimit(max_recursion_depth)
 
-        return DVFA(starting_state=new_starting_state, name="{}_union_{}".format(A.name, B.name))
+        try:
+            U1, U1_dict = DVFA.unwind(A)
+            U2, U2_dict = DVFA.unwind(B)
+
+            op_construct = _BooleanOperatorConstruct(u1=U1, u1_dict=U1_dict, u2=U2, u2_dict=U2_dict, is_union=True)
+            const_matchings = op_construct.calculate_common_constants_matchings()
+            new_rule = (U1.starting_state, U2.starting_state, const_matchings)
+            new_starting_state = DVFA._recursive_boolean_operation(current_rule=new_rule, op_construct=op_construct)
+            return DVFA(starting_state=new_starting_state, name="{}_union_{}".format(A.name, B.name))
+        except RecursionError as e:
+            raise e
+        except Exception as e:
+            raise DvfaException(msg="Union Failed!", original_exception=e)
+        finally:
+            sys.setrecursionlimit(original_stack_size)

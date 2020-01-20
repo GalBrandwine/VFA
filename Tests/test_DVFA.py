@@ -1,5 +1,5 @@
 import itertools
-import timeit
+import sys
 
 import DVFApy as dvfa_tool
 from Utils import dvfa_generator
@@ -470,6 +470,16 @@ class TestDVFA:
         assert res1
         assert res2
         assert not res3
+
+    def test_recursion_limit_union(self):
+        dvfa1 = dvfa_generator.create_symmetrical_i_n_minus_i(n=3000, i=500)
+        dvfa2 = dvfa_generator.create_symmetrical_i_n_minus_i(n=5555, i=300)
+        current_recursion_limit = sys.getrecursionlimit()
+        try:
+            union_dvfa = dvfa_tool.dvfa.DVFA.union(dvfa1, dvfa2, max_recursion_depth=10)
+            assert False
+        except RecursionError as e:
+            assert current_recursion_limit == sys.getrecursionlimit()
 
     def test_big_scaleable_union(self):
         dvfa1 = dvfa_generator.create_symmetrical_i_n_minus_i(n=500, i=50)
