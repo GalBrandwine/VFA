@@ -1,6 +1,7 @@
 from functools import wraps
+from itertools import combinations
 from timeit import default_timer as timer
-from itertools import permutations
+
 import numpy as np
 import plotly.graph_objects as go
 
@@ -60,27 +61,19 @@ if __name__ == "__main__":
                     palindromes[np.random.randint(len(palindromes))]]  # Split a palindrome to its letters
     word = DVFApy.word.Word([int(d) for d in a_palindrome])  # Create the Word representing this palindrome
 
-    # Performance Test 1
+    # Performance Test
     dvfas = []
-    for i in range(1, 50):
-        for n in range(i, 250):
+    for i in range(1, 10):
+        for n in range(i, 25):
             n_1 = n
             i_1 = i
             i_n_1_dvfa = dvfa_generator.create_symmetrical_i_n_minus_i(n_1, i_1)
             dvfas.append(i_n_1_dvfa)
 
-    # n_2 = 50
-    # i_2 = 3
-    # i_n_2_dvfa = dvfa_generator.create_symmetrical_i_n_minus_i(n_2, i_2)
-
-
-
     # Get all permutations of length 2
     # and length 2
-    perm = permutations(dvfas, 2)
-
-    # Print the obtained permutations
-    for A, B in perm:
+    comb = combinations(dvfas, 2)
+    for A, B in comb:
         intersected = analyse_intersect(A, B)
         intersection_x.append(len(intersected.state_set))
         intersection_y.append(run_time)
@@ -97,93 +90,15 @@ if __name__ == "__main__":
         run = DVFApy.run.Run(unioned, word)
         accepted = analyse_run(run)
         run_y.append(run_time)
-    #
-    # # # Performance Test 2
-    # n_1 = 50
-    # i_1 = 10
-    # i_n_1_dvfa = dvfa_generator.create_symmetrical_i_n_minus_i(n_1, i_1)
-    #
-    # n_2 = 500
-    # i_2 = 10
-    # i_n_2_dvfa = dvfa_generator.create_symmetrical_i_n_minus_i(n_2, i_2)
-    #
-    # intersected = analyse_intersect(i_n_1_dvfa, i_n_2_dvfa)
-    # intersection_x.append(len(intersected.state_set))
-    # intersection_y.append(run_time)
-    # intersection_name.append(intersected.name)
-    #
-    # unioned = analyse_union(i_n_1_dvfa, i_n_2_dvfa)
-    # union_x.append(len(unioned.state_set))
-    # union_y.append(run_time)
-    # union_name.append(unioned.name)
-    #
-    # run = DVFApy.run.Run(intersected, word)
-    # accepted = analyse_run(run)
-    # run_y.append(run_time)
-    # run = DVFApy.run.Run(unioned, word)
-    # accepted = analyse_run(run)
-    # run_y.append(run_time)
-    #
-    # # Performance Test 3
-    # n_1 = 65
-    # i_1 = 45
-    # i_n_1_dvfa = dvfa_generator.create_symmetrical_i_n_minus_i(n_1, i_1)
-    #
-    # n_2 = 600
-    # i_2 = 199
-    # i_n_2_dvfa = dvfa_generator.create_symmetrical_i_n_minus_i(n_2, i_2)
-    #
-    # intersected = analyse_intersect(i_n_1_dvfa, i_n_2_dvfa)
-    # intersection_x.append(len(intersected.state_set))
-    # intersection_y.append(run_time)
-    # intersection_name.append(intersected.name)
-    #
-    # unioned = analyse_union(i_n_1_dvfa, i_n_2_dvfa)
-    # union_x.append(len(unioned.state_set))
-    # union_y.append(run_time)
-    # union_name.append(unioned.name)
-    #
-    # run = DVFApy.run.Run(intersected, word)
-    # accepted = analyse_run(run)
-    # run_y.append(run_time)
-    # run = DVFApy.run.Run(unioned, word)
-    # accepted = analyse_run(run)
-    # run_y.append(run_time)
-    #
-    # # Performance Test 4
-    # n_1 = 80
-    # i_1 = 45
-    # i_n_1_dvfa = dvfa_generator.create_symmetrical_i_n_minus_i(n_1, i_1)
-    #
-    # n_2 = 650
-    # i_2 = 19
-    # i_n_2_dvfa = dvfa_generator.create_symmetrical_i_n_minus_i(n_2, i_2)
-    #
-    # intersected = analyse_intersect(i_n_1_dvfa, i_n_2_dvfa)
-    # intersection_x.append(len(intersected.state_set))
-    # intersection_y.append(run_time)
-    # intersection_name.append(intersected.name)
-    #
-    # unioned = analyse_union(i_n_1_dvfa, i_n_2_dvfa)
-    # union_x.append(len(unioned.state_set))
-    # union_y.append(run_time)
-    # union_name.append(unioned.name)
-    #
-    # run = DVFApy.run.Run(intersected, word)
-    # accepted = analyse_run(run)
-    # run_y.append(run_time)
-    # run = DVFApy.run.Run(unioned, word)
-    # accepted = analyse_run(run)
-    # run_y.append(run_time)
 
     # Graph preparations
-
+    MARKERSIZE = 20
     union_graph_bars = go.Scatter(
         x=union_x,
         y=union_y,
         hovertext=union_name,
         mode='markers',
-        marker=dict(size=20,
+        marker=dict(size=MARKERSIZE,
                     color=[color for color in range(len(union_x))])
     )
     union_layout = go.Layout(
@@ -204,7 +119,7 @@ if __name__ == "__main__":
         y=intersection_y,
         hovertext=intersection_name,
         mode='markers',
-        marker=dict(size=40,
+        marker=dict(size=MARKERSIZE,
                     color=[color for color in range(len(intersection_x))])
     )
     intersection_layout = go.Layout(
@@ -226,7 +141,7 @@ if __name__ == "__main__":
         y=run_y,
         hovertext=union_name + intersection_name,
         mode='markers',
-        marker=dict(size=40,
+        marker=dict(size=MARKERSIZE,
                     color=[color for color in range(len(run_x))])
     )
     run_on_word_layout = go.Layout(
