@@ -80,7 +80,6 @@ class TestRun:
         assert config.has_finished() is True
         assert config.is_current_state_accepting() is True
 
-    # **************************************** BRUT TESTING ****************************************
     def test_3PAL_dvfa(self):
         # test if we can properly create and run on a dvfa that accepts ALL 3pal.
 

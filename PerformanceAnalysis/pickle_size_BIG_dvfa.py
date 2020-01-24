@@ -1,15 +1,15 @@
-from Utils import dvfa_saver
-from Utils import logger
-from Utils import dvfa_generator
-import DVFApy
-
-from timeit import default_timer as timer
-from functools import wraps
-
 import os
+import sys
+from functools import wraps
+from timeit import default_timer as timer
+
 import plotly.graph_objects as go
 import resource
-import sys
+
+import DVFApy
+from Utils import dvfa_generator
+from Utils import dvfa_saver
+from Utils import logger
 
 print(resource.getrlimit(resource.RLIMIT_STACK))
 print(sys.getrecursionlimit())

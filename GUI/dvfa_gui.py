@@ -1,15 +1,15 @@
-import Utils as utils
-from functools import wraps
-from timeit import default_timer as timer
-from Utils import dvfa_generator
-from Utils import logger
-import PySimpleGUI as sg
-import DVFApy
 import os
 import sys
+from functools import wraps
+from timeit import default_timer as timer
+import PySimpleGUI as sg
+import DVFApy
+import Utils as utils
+from Utils import dvfa_generator
+from Utils import logger
 
 about = """
-This is The DVFA tool.
+This is The DVFA Tool.
 
 A tool for creating DVFAs, and performing operations on them.
 
@@ -145,7 +145,7 @@ layout = [
     [sg.Text("DVFA tool by Alon Ben-yosef & Gal Brandwine " + chr(169))]
 ]
 
-window = sg.Window('DVFA tool', layout)
+window = sg.Window('DVFA Tool', layout)
 
 
 def timeit_wrapper(func):

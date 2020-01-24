@@ -1,5 +1,6 @@
-from DVFApy.dvfa import DVFA
 import pickle
+
+from DVFApy.dvfa import DVFA
 
 
 def save(dvfa: DVFA, path: str, dvfa_name: str):
@@ -15,7 +16,6 @@ def save(dvfa: DVFA, path: str, dvfa_name: str):
 
 # Test
 if __name__ == "__main__":
-    from DVFApy.word import Word
     from DVFApy.state import State
     import os
 

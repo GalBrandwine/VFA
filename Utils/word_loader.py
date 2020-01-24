@@ -1,4 +1,5 @@
 import numpy
+
 from DVFApy.word import Word
 
 

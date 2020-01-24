@@ -10,9 +10,9 @@
 #     import builtins as __builtin__
 import sys
 
-from DVFApy.state import State
-from DVFApy.exceptions import DvfaException
 from DVFApy.boolean_operator_construct import _BooleanOperatorConstruct
+from DVFApy.exceptions import DvfaException
+from DVFApy.state import State
 
 
 class DVFA:

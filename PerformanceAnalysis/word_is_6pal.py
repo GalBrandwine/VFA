@@ -1,12 +1,13 @@
+from functools import wraps
+from timeit import default_timer as timer
+
+import numpy as np
+import plotly.graph_objects as go
+
+import DVFApy
+from Utils import dvfa_generator
 from Utils import logger
 from Utils import word_generator
-from Utils import dvfa_generator
-import DVFApy
-import numpy as np
-from timeit import default_timer as timer
-from functools import wraps
-
-import plotly.graph_objects as go
 
 
 def timeit_wrapper(func):

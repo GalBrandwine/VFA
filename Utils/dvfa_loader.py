@@ -1,5 +1,6 @@
-from DVFApy.dvfa import DVFA
 import pickle
+
+from DVFApy.dvfa import DVFA
 
 
 def load(path_to_dvfa: str) -> DVFA:

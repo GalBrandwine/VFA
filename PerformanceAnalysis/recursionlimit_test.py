@@ -1,13 +1,14 @@
-from Utils import dvfa_saver
-from Utils import logger
-from Utils import dvfa_generator
-import DVFApy
-
-from timeit import default_timer as timer
+import sys
 from functools import wraps
+from timeit import default_timer as timer
 
 import resource
-import sys
+
+import DVFApy
+from Utils import dvfa_generator
+from Utils import dvfa_saver
+from Utils import logger
+
 
 def timeit_wrapper(func):
     @wraps(func)

@@ -1,6 +1,6 @@
-from DVFApy.word import Word
-from DVFApy.state import State
 from DVFApy.config import Config
+from DVFApy.state import State
+from DVFApy.word import Word
 
 
 class TestConfig:
